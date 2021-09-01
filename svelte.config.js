@@ -17,10 +17,10 @@ const config = {
 			fallback: null
 		}),
 		// Comment the paths if wants to run in dev mode.
-		paths: {
-			base: '/groceries2',
-			assets: '/groceries2'
-		}
+		// paths: {
+		// 	base: '/groceries2',
+		// 	assets: '/groceries2'
+		// }
 	}
 };
 
