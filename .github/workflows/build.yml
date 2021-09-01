@@ -28,7 +28,13 @@ jobs:
           
       - name: Run npm build
         run: npm run build
-
+      
+      - name: NoJekyll
+        run:
+          cd build
+          touch .nojekyll
+          cd ..
+          
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.1
         with:
