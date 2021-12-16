@@ -14,31 +14,38 @@
 	import { Food } from '$lib/food';
 	import FoodUI from '$lib/FoodUI.svelte';
 	import { onMount } from 'svelte';
-	import { register } from '$lib/food-register';
+	import { FoodRegister } from '$lib/food-register';
 	import { goto } from '$app/navigation';
 
 	let edit: boolean = false;
 	let food: Food;
+	let ingredients: Array<Food> = [];
 
-	onMount(() => {
-		food = register.get(slug);
-		food = food;
+	onMount(async () => {
+		await updateFood();
 	});
 
-	function newIngredient() {
-		let ingredient: Food = new Food('Pear');
-		register.register(ingredient)
-		food.addIngredient(ingredient);
-		food = food;
+	async function updateFood() {
+		food = await FoodRegister.get(slug);
+		ingredients = await food.getIngredients();
 	}
 
-	function gotoIngredient(ingredient: Food) {
-		goto('/food/' + ingredient.getId()).then(() => {
-			food = register.get(slug);
-			food = food;
+	async function newIngredient() {
+		console.log('Click!');
+		console.log(food);
+		let ingredient: Food = new Food('Pear');
+		await food.addIngredient(ingredient);
+		await FoodRegister.register(ingredient);
+		await FoodRegister.register(food);
+		await updateFood();
+		console.log(food);
+	}
+
+	async function gotoIngredient(ingredient: Food) {
+		goto('/food/' + ingredient.getId()).then(async () => {
+			updateFood();
 		});
 	}
-	
 </script>
 
 <button on:click={() => goto('../')}>
@@ -54,8 +61,8 @@
 		<p>{food.getDescription()}</p>
 	{/if}
 	<button on:click={() => edit = !edit}>{!edit? 'Edit' : 'Save'}</button>
-	<button on:click={newIngredient}>Add Food</button>
-	{#each [...food.getIngredients()] as ingredient}
+	<button on:click={newIngredient}>Add Ingredient</button>
+	{#each ingredients as ingredient}
 		<div on:click={() => gotoIngredient(ingredient)}>
 			<FoodUI food={ingredient}></FoodUI>
 		</div>
