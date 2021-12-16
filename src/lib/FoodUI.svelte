@@ -1,7 +1,21 @@
 <script lang="ts">
 	import type { Food } from '$lib/food';
+	import { onMount } from 'svelte';
 	export let food: Food;
 	export let onDestroy: Function = undefined;
+
+	let ingredients: Array<Food> = [];
+	let price: number = 0;
+
+	onMount(async () => {
+		await updateIngredients();
+	});
+
+	async function updateIngredients() {
+		ingredients = await food.getIngredients();
+		price = await food.getPrice();
+	}
+
 </script>
 
 <div>
@@ -9,9 +23,9 @@
 		<h2>{food.getName()}</h2>
 		<p>Id: {food.getId()}</p>
 		<p>Category: {food.getCategory()}</p>
-		<p>Price: {food.getPrice()}</p>
+		<p>Price: {price}</p>
 		<p>Ingredients:</p>
-		{#each [...food.getIngredients()] as ingredient}
+		{#each ingredients as ingredient}
 			<p>{ingredient.getName()}</p>
 		{/each}
 		{#if onDestroy}

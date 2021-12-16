@@ -1,4 +1,4 @@
-import type { FoodRegister } from './food-register';
+import { FoodRegister } from './food-register';
 import { v4 as uuidv4 } from 'uuid';
 
 export { Food, FoodCategory }
@@ -12,24 +12,22 @@ enum FoodCategory {
 
 class Food {
 	public name: string;
-	public description: string = 'Insert description here..';
-	private category: FoodCategory;
-	private id: string;
-	private basePrice: number;
-	private ingredients: Set<string> = new Set();
-	private register: FoodRegister;
+	public description: string;
+	private _category: FoodCategory;
+	private _id: string;
+	private _basePrice: number;
+	private _ingredients: Array<string> = [];
 
 	public constructor(
 			name: string = 'Untitled Food',
 			category: FoodCategory = FoodCategory.Undefined,
-			basePrice: number = 0) {
+			basePrice: number = 0,
+			description: string = 'Empty description.') {
 		this.name = name;
-		this.category = category;
-		this.basePrice = basePrice;
-	}
-
-	public setRegister(register: FoodRegister) {
-		this.register = register;
+		this.description = description;
+		this._category = category;
+		this._basePrice = basePrice;
+		this._id = this.generateId();
 	}
 
 	public getName(): string {
@@ -37,34 +35,31 @@ class Food {
 	}
 	
 	public getId(): string {
-		if (!this.id) {
-			this.id = this.generateId();
-		}
-		return this.id;
+		return this._id;
 	}
 
 	public getCategory(): FoodCategory {
-		return this.category;
+		return this._category;
 	}
 
 	public getDescription(): string {
 		return this.description;
 	}
 
-	public getCategories(deep: boolean = true): Set<FoodCategory> {
-		let categories: Set<FoodCategory> = new Set();
-		categories.add(this.category)
-		this.getIngredients().forEach((food: Food) => {
-			if (deep) {
-				food.getCategories().forEach((category: FoodCategory) => {
-					categories.add(category);
-				});
-			} else {
-				categories.add(food.getCategory());
-			}
-		});
-		return categories;
-	}
+	// public async getCategories(deep: boolean = true): Promise<Array<FoodCategory>> {
+	// 	let categories: Array<FoodCategory> = [];
+	// 	categories.push(this.category);
+	// 	(await this.getIngredients()).forEach(async (food: Food) => {
+	// 		if (deep) {
+	// 			(await food.getCategories()).forEach((category: FoodCategory) => {
+	// 				categories.push(category);
+	// 			});
+	// 		} else {
+	// 			categories.push(food.getCategory());
+	// 		}
+	// 	});
+	// 	return categories;
+	// }
 	
 	public setName(name: string) {
 		this.name = name;
@@ -74,60 +69,73 @@ class Food {
 		return uuidv4();
 	}
 
-	public addIngredient(food: Food) {
-		if (food.hasIngredient(this)) {
-			throw new Error('Cyclic ingredients are not allowed!');
+	public async addIngredient(food: Food) {
+		if (await food.hasIngredient(this)) {
+			console.error('Cyclic ingredients are not allowed!');
 		}
-		this.ingredients.add(food.id);
+		this._ingredients.push(food.getId());
+		console.log(`Added ${food.name} to ${this.name} ingredients: ${this._ingredients}`);
 	}
 
-	public removeIngredient(food: Food) {
-		this.ingredients.delete(food.id);
-	}
+	// public removeIngredient(food: Food) {
+	// 	this.ingredients.delete(food.id);
+	// }
 
-	public getIngredients(): Set<Food> {
-		let ingredients: Set<Food> = new Set();
-		this.ingredients.forEach((id: string) => {
-			ingredients.add(this.register.get(id));
-		});
+	public async getIngredients(): Promise<Array<Food>> {
+		let ingredients: Array<Food> = [];
+		for (let id of this._ingredients) {
+			ingredients.push(await FoodRegister.get(id));
+		}
+		console.log(`Got ingredients ${JSON.stringify(ingredients)} of ${this.name}`);
 		return ingredients;
 	}
 
-	public hasIngredient(food: Food): boolean {
-		for (let ingredient of this.getIngredients()) {
-			if (ingredient.getId() === food.getId()
-					|| ingredient.hasIngredient(food)) {
+	public getIngredientIds(): Array<string> {
+		console.log(`Got ingredient ids ${JSON.stringify(this._ingredients)} of ${this.name}`);
+		return [...this._ingredients];
+	}
+
+	public async hasIngredient(food: Food): Promise<boolean> {
+		for (let ingredient of await this.getIngredients()) {
+			if (ingredient.getId() === food.getId()) {
+				console.log(`${this.name} has ingredient ${food.name}`);
 				return true;
 			}
 		}
+		console.log(`${this.name} does not have ingredient ${food.name}`);
 		return false;
 	}
 
-	public replaceIngredient(from: Food, to: Food) {
-		if (this.ingredients.has(from.id)) {
-			this.ingredients.delete(from.id)
-			this.ingredients.add(to.id)
-		}
-	}
+	// public replaceIngredient(from: Food, to: Food) {
+	// 	if (this.ingredients.has(from.id)) {
+	// 		this.ingredients.delete(from.id)
+	// 		this.ingredients.add(to.id)
+	// 	}
+	// }
 
 	public setBasePrice(basePrice: number) {
-		this.basePrice = basePrice;
+		this._basePrice = basePrice;
 	}
 
-	public getPrice(): number {
-		let price = this.basePrice;
-		this.getIngredients().forEach((food: Food) => {
-			price += food.getPrice();
+	public getBasePrice(): number {
+		return this._basePrice;
+	}
+
+	public async getPrice(): Promise<number> {
+		let price = this._basePrice;
+		(await this.getIngredients()).forEach(async (food: Food) => {
+			price += await food.getPrice();
 		});
+		console.log(`${this.name} has price ${price}`);
 		return price;
 	}
 
-	public copy(): Food {
-		let food: Food = new Food(this.name, this.category);
-		food.setBasePrice(this.basePrice);
-		this.getIngredients().forEach((ingredient: Food) => {
-			food.addIngredient(ingredient);
-		});
-		return food;
-	}
+	// public async copy(): Promise<Food> {
+	// 	let food: Food = new Food(this.name, this.category);
+	// 	food.setBasePrice(this.basePrice);
+	// 	(await this.getIngredients()).forEach((ingredient: Food) => {
+	// 		food.addIngredient(ingredient);
+	// 	});
+	// 	return food;
+	// }
 }
