@@ -31,14 +31,11 @@
 	}
 
 	async function newIngredient() {
-		console.log('Click!');
-		console.log(food);
 		let ingredient: Food = new Food('Pear');
 		await food.addIngredient(ingredient);
 		await FoodRegister.register(ingredient);
 		await FoodRegister.register(food);
 		await updateFood();
-		console.log(food);
 	}
 
 	async function gotoIngredient(ingredient: Food) {
