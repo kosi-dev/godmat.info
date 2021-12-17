@@ -1,6 +1,6 @@
 # godmat.info
 
-Besøk nettsiden [her](godmat.info). (WIP)
+Besøk nettsiden [her](https://godmat.info/). (WIP)
 
 ## Hensikt
 - Etter å ha satt sammen et måltid kan du umiddelbart se den totale prisen og næringsinnholdet.
