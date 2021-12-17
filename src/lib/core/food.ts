@@ -74,7 +74,7 @@ class Food {
 			console.error('Cyclic ingredients are not allowed!');
 		}
 		this._ingredients.push(food.getId());
-		console.log(`Added ${food.name} to ${this.name} ingredients: ${this._ingredients}`);
+		// console.log(`Added ${food.name} to ${this.name} ingredients: ${this._ingredients}`);
 	}
 
 	// public removeIngredient(food: Food) {
@@ -86,12 +86,12 @@ class Food {
 		for (let id of this._ingredients) {
 			ingredients.push(await FoodRegister.get(id));
 		}
-		console.log(`Got ingredients ${JSON.stringify(ingredients)} of ${this.name}`);
+		// console.log(`Got ingredients ${JSON.stringify(ingredients)} of ${this.name}`);
 		return ingredients;
 	}
 
 	public getIngredientIds(): Array<string> {
-		console.log(`Got ingredient ids ${JSON.stringify(this._ingredients)} of ${this.name}`);
+		// console.log(`Got ingredient ids ${JSON.stringify(this._ingredients)} of ${this.name}`);
 		return [...this._ingredients];
 	}
 
@@ -102,7 +102,7 @@ class Food {
 				return true;
 			}
 		}
-		console.log(`${this.name} does not have ingredient ${food.name}`);
+		// console.log(`${this.name} does not have ingredient ${food.name}`);
 		return false;
 	}
 
@@ -126,7 +126,7 @@ class Food {
 		(await this.getIngredients()).forEach(async (food: Food) => {
 			price += await food.getPrice();
 		});
-		console.log(`${this.name} has price ${price}`);
+		// console.log(`${this.name} has price ${price}`);
 		return price;
 	}
 
