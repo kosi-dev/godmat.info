@@ -12,7 +12,7 @@
 
 <script lang="ts">
 	import { Food } from '$lib/core/food';
-	import FoodUI from '$lib/FoodUI.svelte';
+	import FoodUI from '$lib/ui/FoodUI.svelte';
 	import { onMount } from 'svelte';
 	import { FoodRegister } from '$lib/core/food-register';
 	import { goto } from '$app/navigation';
