@@ -1,5 +1,5 @@
 
-import { app, db } from './firebase';
+import { app, db } from '../firebase/firebase';
 import { collection, query, getDocs, setDoc, getDoc, doc } from 'firebase/firestore';
 import { Food } from './food';
 export { FoodRegister }

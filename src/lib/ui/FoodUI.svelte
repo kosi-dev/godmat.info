@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Food } from '$lib/food';
+	import type { Food } from '$lib/core/food';
 	import { onMount } from 'svelte';
 	export let food: Food;
 	export let onDestroy: Function = undefined;

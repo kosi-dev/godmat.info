@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { Food } from '$lib/food';
-	import { FoodRegister } from '$lib/food-register';
+	import { Food } from '$lib/core/food';
+	import { FoodRegister } from '$lib/core/food-register';
 	import FoodUI from '$lib/FoodUI.svelte';
 	import { onMount } from 'svelte';
 

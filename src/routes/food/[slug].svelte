@@ -11,10 +11,10 @@
 </script>
 
 <script lang="ts">
-	import { Food } from '$lib/food';
+	import { Food } from '$lib/core/food';
 	import FoodUI from '$lib/FoodUI.svelte';
 	import { onMount } from 'svelte';
-	import { FoodRegister } from '$lib/food-register';
+	import { FoodRegister } from '$lib/core/food-register';
 	import { goto } from '$app/navigation';
 
 	let edit: boolean = false;
