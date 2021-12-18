@@ -17,6 +17,15 @@
 	import { FoodRegister } from '$lib/core/food-register';
 	import FoodItem from '$lib/ui/FoodItem.svelte';
 	import ButtonWithDialog from "$lib/ui/ButtonWithDialog.svelte";
+	import { onAuthStateChanged } from 'firebase/auth';
+	import { auth } from "$lib/firebase/firebase";
+
+	let user = auth.currentUser;
+	
+	onAuthStateChanged(auth, async (u) => {
+		user = u;
+	});
+
 
 	let edit: boolean = false;
 	let food: Food;
@@ -78,7 +87,9 @@
 		<p>{food.getDescription()}</p>
 	{/if}
 
-	<button on:click={editButtonOnClick}>{edit? 'Save' : 'Edit'}</button>
+	{#if user != null}
+		<button on:click={editButtonOnClick}>{edit? 'Save' : 'Edit'}</button>
+	{/if}
 
 	{#each ingredients as ingredient}
 		<div on:click={() => gotoIngredient(ingredient)}>
