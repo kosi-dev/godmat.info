@@ -13,19 +13,21 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { Food } from '$lib/core/food';
+	import { Food, FoodTagLabels } from '$lib/core/food';
 	import { FoodRegister } from '$lib/core/food-register';
 	import FoodItem from '$lib/ui/FoodItem.svelte';
 	import ButtonWithDialog from "$lib/ui/ButtonWithDialog.svelte";
 	import { onAuthStateChanged } from 'firebase/auth';
 	import { auth } from "$lib/firebase/firebase";
+	import Button from '$lib/ui/Button.svelte';
+	import SwitchButton from '$lib/ui/SwitchButton.svelte';
+	import Tag from '$lib/ui/Tag.svelte';
 
 	let user = auth.currentUser;
 	
 	onAuthStateChanged(auth, async (u) => {
 		user = u;
 	});
-
 
 	let edit: boolean = false;
 	let food: Food;
@@ -67,30 +69,47 @@
 	}
 </script>
 
-<button on:click={() => goto('../')}>
-	Home
-</button>
-
+<Button onClick={() => goto('../')} text={'Home'}/>
 
 {#if food}
+	{#if user != null}
+		<Button onClick={editButtonOnClick} text={edit? 'Save' : 'Edit'}/>
+	{/if}
 	{#if edit}
-		<input bind:value={food.name}>
-		<input bind:value={food.description}>
 		<ButtonWithDialog
-			text={"Delete"}
+			text={"Delete " + food.getName()}
 			onClick={deleteButtonOnClick}
 			dialogText={"Are you sure?"}
 		/>
-		<button on:click={addIngredientButtonOnClick}>Add Ingredient</button>
+		<h3>Name</h3>
+		<div>
+			<input bind:value={food.name}>
+		</div>
+		<h3>Description</h3>
+		<div>
+			<input bind:value={food.description}>
+		</div>
+		<h3>Tags</h3>
+		{#each [...FoodTagLabels] as [tag, text]}
+			<SwitchButton
+				state={food.hasTag(tag)}
+				offText={text}
+				switchOff={() => food.removeTag(tag)}
+				switchOn={() => food.addTag(tag)}
+			/>
+		{/each}
 	{:else}
 		<h1>{food.getName()}</h1>
+		{#each food.getTagNames() as text}
+		<Tag {text}/>
+		{/each}
 		<p>{food.getDescription()}</p>
 	{/if}
-
-	{#if user != null}
-		<button on:click={editButtonOnClick}>{edit? 'Save' : 'Edit'}</button>
+	
+	<h3>Ingredients</h3>
+	{#if edit}
+		<Button onClick={addIngredientButtonOnClick} text={'Add Ingredient'}/>
 	{/if}
-
 	{#each ingredients as ingredient}
 		<div on:click={() => gotoIngredient(ingredient)}>
 			<FoodItem food={ingredient}></FoodItem>

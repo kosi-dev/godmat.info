@@ -1,31 +1,43 @@
 import { FoodRegister } from './food-register';
 import { v4 as uuidv4 } from 'uuid';
 
-export { Food, FoodCategory }
+export { Food, FoodTagLabels }
 
-enum FoodCategory {
-	Undefined,
-	Meat,
-	Bread,
-	Dairy
+enum FoodTag {
+	Breakfast,
+	Lunch,
+	Dinner,
+	Vegan,
 }
+
+const FoodTagLabels: Map<FoodTag, string> = new Map<FoodTag, string>([
+	[FoodTag.Breakfast, '🍳 Frokost'],
+	[FoodTag.Lunch, '🥪 Lunsj'],
+	[FoodTag.Dinner, '🍲 Middag'],
+	[FoodTag.Vegan, '🥗 Vegetar']
+]);
 
 class Food {
 	public name: string;
 	public description: string;
-	private _category: FoodCategory;
 	private _id: string;
 	private _basePrice: number;
+	private _tags: Array<FoodTag> = [];
 	private _ingredients: Array<string> = [];
 
+	/**
+	 * Constructs a Food instance.
+	 * A unique `_id` is generated.
+	 * @param name food name
+	 * @param basePrice food base price
+	 * @param description food description
+	 */
 	public constructor(
 			name: string = 'Untitled Food',
-			category: FoodCategory = FoodCategory.Undefined,
 			basePrice: number = 0,
 			description: string = 'Empty description.') {
 		this.name = name;
 		this.description = description;
-		this._category = category;
 		this._basePrice = basePrice;
 		this._id = this.generateId();
 	}
@@ -38,29 +50,33 @@ class Food {
 		return this._id;
 	}
 
-	public getCategory(): FoodCategory {
-		return this._category;
+	public getTags(): Array<FoodTag> {
+		return [...this._tags];
+	}
+
+	public getTagNames(): Array<string> {
+		return this.getTags().map((foodTag) => FoodTagLabels.get(foodTag));
+	}
+
+	public addTag(tag: FoodTag) {
+		this._tags.push(tag);
+	}
+
+	public hasTag(tag: FoodTag): boolean {
+		return this._tags.includes(tag);
+	}
+
+	public removeTag(tag: FoodTag) {
+		const index: number = this._tags.indexOf(tag);
+		if (index !== -1) {
+			this._tags.splice(index, 1);
+		}
 	}
 
 	public getDescription(): string {
 		return this.description;
 	}
 
-	// public async getCategories(deep: boolean = true): Promise<Array<FoodCategory>> {
-	// 	let categories: Array<FoodCategory> = [];
-	// 	categories.push(this.category);
-	// 	(await this.getIngredients()).forEach(async (food: Food) => {
-	// 		if (deep) {
-	// 			(await food.getCategories()).forEach((category: FoodCategory) => {
-	// 				categories.push(category);
-	// 			});
-	// 		} else {
-	// 			categories.push(food.getCategory());
-	// 		}
-	// 	});
-	// 	return categories;
-	// }
-	
 	public setName(name: string) {
 		this.name = name;
 	}
@@ -69,50 +85,54 @@ class Food {
 		return uuidv4();
 	}
 
-	public async addIngredient(food: Food) {
+	/**
+	 * Adds `food` as an ingredient to this food.
+	 * Cyclic ingredients will not be added.
+	 * 
+	 * @param food the ingredient to add
+	 * @returns `true` if `food` was added, `false` otherwise
+	 */
+	public async addIngredient(food: Food): Promise<boolean> {
 		if (await food.hasIngredient(this)) {
 			console.error('Cyclic ingredients are not allowed!');
+			return false;
 		}
 		this._ingredients.push(food.getId());
-		// console.log(`Added ${food.name} to ${this.name} ingredients: ${this._ingredients}`);
+		return true;
 	}
 
-	// public removeIngredient(food: Food) {
-	// 	this.ingredients.delete(food.id);
-	// }
-
+	/**
+	 * Does only return ingredient children, not all decendants.
+	 * 
+	 * @returns the direct ingredient children
+	 */
 	public async getIngredients(): Promise<Array<Food>> {
 		let ingredients: Array<Food> = [];
 		for (let id of this._ingredients) {
 			ingredients.push(await FoodRegister.get(id));
 		}
-		// console.log(`Got ingredients ${JSON.stringify(ingredients)} of ${this.name}`);
 		return ingredients;
 	}
 
 	public getIngredientIds(): Array<string> {
-		// console.log(`Got ingredient ids ${JSON.stringify(this._ingredients)} of ${this.name}`);
 		return [...this._ingredients];
 	}
 
+	/**
+	 * Checks if `food` is an ingredient, **recursively** in this' decendants.
+	 * 
+	 * @param food the ingredient to check for
+	 * @returns `true` if food is an ingredient, `false` otherwise
+	 */
 	public async hasIngredient(food: Food): Promise<boolean> {
 		for (let ingredient of await this.getIngredients()) {
 			if (ingredient.getId() === food.getId()
 					|| ingredient.hasIngredient(food)) {
-				// console.log(`${this.name} has ingredient ${food.name}`);
 				return true;
 			}
 		}
-		// console.log(`${this.name} does not have ingredient ${food.name}`);
 		return false;
 	}
-
-	// public replaceIngredient(from: Food, to: Food) {
-	// 	if (this.ingredients.has(from.id)) {
-	// 		this.ingredients.delete(from.id)
-	// 		this.ingredients.add(to.id)
-	// 	}
-	// }
 
 	public setBasePrice(basePrice: number) {
 		this._basePrice = basePrice;
@@ -122,21 +142,16 @@ class Food {
 		return this._basePrice;
 	}
 
+	/**
+	 * Calculates price **recursively**, counting all decendants.
+	 * 
+	 * @returns the total price of this food
+	 */
 	public async getPrice(): Promise<number> {
 		let price = this._basePrice;
-		(await this.getIngredients()).forEach(async (food: Food) => {
-			price += await food.getPrice();
-		});
-		// console.log(`${this.name} has price ${price}`);
+		for (let ingredient of await this.getIngredients()) {
+			price += await ingredient.getPrice();
+		}
 		return price;
 	}
-
-	// public async copy(): Promise<Food> {
-	// 	let food: Food = new Food(this.name, this.category);
-	// 	food.setBasePrice(this.basePrice);
-	// 	(await this.getIngredients()).forEach((ingredient: Food) => {
-	// 		food.addIngredient(ingredient);
-	// 	});
-	// 	return food;
-	// }
 }

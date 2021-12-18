@@ -28,13 +28,16 @@
     .dialog {
         position: relative;
         margin: auto;
+        margin-top: 100px;
+
         min-width: 300px;
         max-width: 50%;
         min-height: 200px;
 
-        background-color: aqua;
+        background-color: white;
         border-radius: 16px;
         padding: 16px;
+        box-shadow: 0px 16px 32px 0px rgba(128, 128, 128, 0.5);
 
         display: flex;
         flex-direction: column;

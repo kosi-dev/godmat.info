@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import { signIn, auth } from '$lib/firebase/firebase';
 	import { onAuthStateChanged } from 'firebase/auth';
+	import Button from '$lib/ui/Button.svelte';
 
 	let foods: Array<Food> = []
 	let user = auth.currentUser;
@@ -35,15 +36,15 @@
 
 
 <h1>Food Register</h1>
-
 {#if !user}
-	<button on:click={signInButtonOnClick}>Sign in</button>
+	<Button onClick={signInButtonOnClick} text={'Sign in'}/>
 {:else}
 	<p>Signed in as {user.displayName}</p>
-	<button on:click={signOutButtonOnClick}>Sign out</button>
-	<button on:click={createFoodButtonOnClick}>Create new food</button>
+	<Button onClick={signOutButtonOnClick} text={'Sign out'}/>
+	<Button onClick={createFoodButtonOnClick} text={'+ Create new food'}/>
 {/if}
-
+<br>
+<br>
 {#each foods as food}
 	<div on:click={() => goto('/food/' + food.getId())}>
 		<FoodItem {food}></FoodItem>
