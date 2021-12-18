@@ -97,8 +97,9 @@ class Food {
 
 	public async hasIngredient(food: Food): Promise<boolean> {
 		for (let ingredient of await this.getIngredients()) {
-			if (ingredient.getId() === food.getId()) {
-				console.log(`${this.name} has ingredient ${food.name}`);
+			if (ingredient.getId() === food.getId()
+					|| ingredient.hasIngredient(food)) {
+				// console.log(`${this.name} has ingredient ${food.name}`);
 				return true;
 			}
 		}

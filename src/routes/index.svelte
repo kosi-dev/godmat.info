@@ -2,38 +2,35 @@
 	import { goto } from '$app/navigation';
 	import { Food } from '$lib/core/food';
 	import { FoodRegister } from '$lib/core/food-register';
-	import FoodUI from '$lib/ui/FoodUI.svelte';
+	import FoodItem from '$lib/ui/FoodItem.svelte';
 	import { onMount } from 'svelte';
 	import { signIn, auth } from '$lib/firebase/firebase';
 	import { onAuthStateChanged } from 'firebase/auth';
-	
+
 	let foods: Array<Food> = []
 	let user = auth.currentUser;
 
 	onMount(async () => {
-		await updateFoods();
-	});
-
-	async function updateFoods() {
 		foods = await FoodRegister.getAll();
-	}
-
-	async function newFood() {
-		await FoodRegister.register(new Food("Banana"));
-		updateFoods();
-	}
+	});
+	
+	onAuthStateChanged(auth, async (u) => {
+		user = u;
+	});
 
 	async function signInButtonOnClick() {
 		await signIn();
 	}
-
+	
 	async function signOutButtonOnClick() {
 		auth.signOut();
 	}
 
-	onAuthStateChanged(auth, async (u) => {
-		user = u;
-	});
+	async function createFoodButtonOnClick() {
+		let food: Food = new Food("Untitled");
+		await FoodRegister.put(food);
+		goto('/food/' + food.getId())
+	}
 </script>
 
 
@@ -44,12 +41,11 @@
 {:else}
 	<p>Signed in as {user.displayName}</p>
 	<button on:click={signOutButtonOnClick}>Sign out</button>
+	<button on:click={createFoodButtonOnClick}>Create new food</button>
 {/if}
 
 {#each foods as food}
 	<div on:click={() => goto('/food/' + food.getId())}>
-		<FoodUI {food}></FoodUI>
+		<FoodItem {food}></FoodItem>
 	</div>
 {/each}
-
-<button on:click={newFood}>New Food</button>

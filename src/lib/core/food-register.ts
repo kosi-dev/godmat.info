@@ -1,20 +1,37 @@
 
-import { app, db } from '../firebase/firebase';
-import { collection, query, getDocs, setDoc, getDoc, doc } from 'firebase/firestore';
+import { db } from '../firebase/firebase';
+import { collection, query, getDocs, setDoc, getDoc, doc, deleteDoc } from 'firebase/firestore';
 import { Food } from './food';
 export { FoodRegister }
 
 namespace FoodRegister {
-    export async function register(food: Food) {
+    export async function put(food: Food): Promise<void> {
         const ref = 
             doc(db, "foodRegister", food.getId());
         await setDoc(ref, Object.assign(new Object(), food));
         console.log(`[DB] Wrote ${food.name}`);
     }
 
-    // public unregister(food: Food) {
-    //     this.foods.delete(food.getId());
-    // }
+    /**
+     * Tries to remove the given food from the database.
+     * 
+     * @param food the food to be removed
+     * @returns `false` if food is an ingredient
+     * of another food. `true` otherwise.
+     */
+    export async function remove(food: Food): Promise<boolean> {
+        for (let other of await getAll()) { // Not sure if this is scalable.
+            if (other.hasIngredient(food)) {
+                console.warn(`[DB] Could not delete ${food.name}`);
+                return false;
+            }
+        }
+        const ref = 
+            doc(db, "foodRegister", food.getId());
+        await deleteDoc(ref);
+        console.log(`[DB] Deleted ${food.name}`);
+        return true;
+    }
 
     export async function get(id: string): Promise<Food> {
         const ref = doc(db, "foodRegister", id);
@@ -25,6 +42,7 @@ namespace FoodRegister {
             return food;
         } else {
             console.log(`[DB] Could not read ${id}!`);
+            return null;
         }
     }
 
@@ -38,8 +56,4 @@ namespace FoodRegister {
         console.log(`[DB] Read all!`);
         return foods;
     }
-
-    // public has(id: string): boolean {
-    //     return this.foods.has(id);
-    // }
 }
