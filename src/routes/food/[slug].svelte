@@ -22,6 +22,7 @@
 	import Button from '$lib/ui/Button.svelte';
 	import SwitchButton from '$lib/ui/SwitchButton.svelte';
 	import Tag from '$lib/ui/Tag.svelte';
+	import TextField from '$lib/ui/TextField.svelte';
 
 	let user = auth.currentUser;
 	
@@ -83,11 +84,11 @@
 		/>
 		<h3>Name</h3>
 		<div>
-			<input bind:value={food.name}>
+			<TextField bind:value={food.name}/>
 		</div>
 		<h3>Description</h3>
 		<div>
-			<input bind:value={food.description}>
+			<TextField bind:value={food.description}/>
 		</div>
 		<h3>Tags</h3>
 		{#each [...FoodTagLabels] as [tag, text]}
@@ -101,7 +102,7 @@
 	{:else}
 		<h1>{food.getName()}</h1>
 		{#each food.getTagNames() as text}
-		<Tag {text}/>
+			<Tag {text}/>
 		{/each}
 		<p>{food.getDescription()}</p>
 	{/if}

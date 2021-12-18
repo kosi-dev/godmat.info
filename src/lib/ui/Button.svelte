@@ -18,9 +18,7 @@
         
         color: black;
         background-color: lightgray;
-        border-color: gray;
-
-        
+        border-color: gray; 
     }
     button:hover {
         background-color: rgb(172, 172, 172);
