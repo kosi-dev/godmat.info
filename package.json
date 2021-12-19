@@ -1,6 +1,8 @@
 {
-  "name": "~TODO~",
+  "name": "godmat.info",
   "version": "0.0.1",
+  "repository": "https://github.com/magnetenstad/godmat.info",
+  "license": "MIT",
   "scripts": {
     "dev": "svelte-kit dev",
     "build": "svelte-kit build",
