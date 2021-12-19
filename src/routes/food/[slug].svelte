@@ -23,16 +23,17 @@
 	import SwitchButton from '$lib/ui/SwitchButton.svelte';
 	import Tag from '$lib/ui/Tag.svelte';
 	import TextField from '$lib/ui/TextField.svelte';
-
-	let user = auth.currentUser;
 	
-	onAuthStateChanged(auth, async (u) => {
-		user = u;
-	});
-
 	let edit: boolean = false;
 	let food: Food;
 	let ingredients: Array<Food> = [];
+	let user = auth.currentUser;
+	let searchString: string = "";
+	let searchResults: Array<Food> = [];
+
+	onAuthStateChanged(auth, async (u) => {
+		user = u;
+	});
 
 	onMount(async () => {
 		await readFood();
@@ -56,18 +57,35 @@
 		edit = !edit
 	}
 
-	async function addIngredientButtonOnClick() {
-		let ingredient: Food = new Food('Untitled');
-		await food.addIngredient(ingredient);
-		await FoodRegister.put(ingredient);
-		await FoodRegister.put(food);
-		await readFood();
+	async function cancelEdit() {
+		edit = false;
+		readFood();
+	}
+
+	async function addIngredient(ingredient: Food) {
+		if (await food.addIngredient(ingredient)) {
+			await FoodRegister.put(food);
+			await readFood();
+		} else {
+			alert("Could not add ingredient!");
+		}
 	}
 
 	async function deleteButtonOnClick() {
 		await FoodRegister.remove(food);
 		goto('../')
 	}
+
+	
+	async function updateSearchResults(searchString: string) {
+		if (searchString.length) {
+			searchResults = await FoodRegister.getMatches(searchString);
+		} else {
+			searchResults = [];
+		}
+	}
+
+	$: updateSearchResults(searchString);
 </script>
 
 <Button onClick={() => goto('../')} text={'Home'}/>
@@ -75,8 +93,13 @@
 {#if food}
 	{#if user != null}
 		<Button onClick={editButtonOnClick} text={edit? 'Save' : 'Edit'}/>
-	{/if}
-	{#if edit}
+		{/if}
+		{#if edit}
+		<ButtonWithDialog
+			text={"Cancel"}
+			onClick={cancelEdit}
+			dialogText={"Are you sure?"}
+		/>
 		<ButtonWithDialog
 			text={"Delete " + food.getName()}
 			onClick={deleteButtonOnClick}
@@ -99,23 +122,33 @@
 				switchOn={() => food.addTag(tag)}
 			/>
 		{/each}
+		<h3>Ingredients</h3>
+		<TextField bind:value={searchString} style={'width: 50%'}></TextField>
+		<br>
+		{#each searchResults as ingredient}
+			<div on:click={() => addIngredient(ingredient)}>
+				<FoodItem food={ingredient}></FoodItem>
+			</div>
+		{/each}
+		{#each ingredients as ingredient}
+			<div on:click={() => gotoIngredient(ingredient)}>
+				<FoodItem food={ingredient}></FoodItem>
+			</div>
+		{/each}
 	{:else}
 		<h1>{food.getName()}</h1>
 		{#each food.getTagNames() as text}
 			<Tag {text}/>
 		{/each}
 		<p>{food.getDescription()}</p>
+		
+		<h3>Ingredients</h3>
+		{#each ingredients as ingredient}
+			<div on:click={() => gotoIngredient(ingredient)}>
+				<FoodItem food={ingredient}></FoodItem>
+			</div>
+		{/each}
 	{/if}
-	
-	<h3>Ingredients</h3>
-	{#if edit}
-		<Button onClick={addIngredientButtonOnClick} text={'Add Ingredient'}/>
-	{/if}
-	{#each ingredients as ingredient}
-		<div on:click={() => gotoIngredient(ingredient)}>
-			<FoodItem food={ingredient}></FoodItem>
-		</div>
-	{/each}
 {:else}
 	<h2>Undefined food!</h2>
 {/if}
