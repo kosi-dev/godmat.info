@@ -5,7 +5,7 @@
 </script>
 
 <span>
-    <button on:click={onClick} {style}>{text}</button>
+    <button on:click|stopPropagation={onClick} {style}>{text}</button>
 </span>
 
 <style>
