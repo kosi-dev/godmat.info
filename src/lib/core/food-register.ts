@@ -1,10 +1,13 @@
 
 import { db } from '../firebase/firebase';
-import { collection, query, getDocs, setDoc, getDoc, doc, deleteDoc, where, limit } from 'firebase/firestore';
+import { collection, query, getDocs, setDoc, getDoc, doc, deleteDoc, where, limit, updateDoc } from 'firebase/firestore';
 import { Food } from './food';
+
 export { FoodRegister }
 
 namespace FoodRegister {
+    const keyRef = doc(db, "keys", "keys");
+
     /**
      * Puts `food` into the database, with `food.getId()` as key.
      * 
@@ -13,6 +16,9 @@ namespace FoodRegister {
     export async function put(food: Food): Promise<void> {
         const ref = doc(db, "foodRegister", food.getId());
         await setDoc(ref, Object.assign(new Object(), food));
+        let data = {};
+        data[food.getName()] = food.getId();
+        await updateDoc(keyRef, data);
         console.log(`[DB] Wrote ${food.name}`);
     }
 
@@ -74,16 +80,25 @@ namespace FoodRegister {
 
     /**
      * Gets all foods whose names include `searchString`.
-     * **This is probably not scalable.**
      * 
      * @param searchString the string to search for
      * @returns array of matching foods
      */
     export async function getMatches(searchString: string):
-            Promise<Array<Food>> {
-        const allFoods = await getAll();
-        return allFoods.filter((food: Food) => {
-            return food.name.toLowerCase().includes(searchString.toLowerCase());
-        });
+        Promise<Array<Food>> {
+        const docSnap = await getDoc(keyRef);
+        if (!docSnap.exists()) {
+            console.log(`[DB] Could not read from keys!`);
+            return null;
+        }
+        const data: object = docSnap.data();
+        const foods: Array<Food> = [];
+        for (let key of Object.keys(data)) {
+            if (key.toLowerCase().includes(searchString.toLowerCase())) {
+                foods.push(await get(data[key]));
+            }
+        }
+        console.log(`[DB] Read matches of ${searchString}!`);
+        return foods;
     }
 }
