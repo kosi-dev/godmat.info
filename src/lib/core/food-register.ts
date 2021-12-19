@@ -1,6 +1,6 @@
 
 import { db } from '../firebase/firebase';
-import { collection, query, getDocs, setDoc, getDoc, doc, deleteDoc, where } from 'firebase/firestore';
+import { collection, query, getDocs, setDoc, getDoc, doc, deleteDoc, where, limit } from 'firebase/firestore';
 import { Food } from './food';
 export { FoodRegister }
 
@@ -62,7 +62,7 @@ namespace FoodRegister {
      * @returns array of all foods
      */
     export async function getAll(): Promise<Array<Food>> {
-        const q = query(collection(db, "foodRegister"));
+        const q = query(collection(db, "foodRegister"), limit(25)); //TODO: paginate results
         const querySnapshot = await getDocs(q);
         const foods: Array<Food> = [];
         querySnapshot.forEach((docSnap) => {
