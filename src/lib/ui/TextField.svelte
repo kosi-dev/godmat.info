@@ -1,8 +1,9 @@
-<script>
-    export let value;
+<script lang="ts">
+    export let value: string;
+    export let style: string = '';
 </script>
 
-<input type="text" bind:value>
+<input type="text" bind:value {style}>
 
 <style>
     input {

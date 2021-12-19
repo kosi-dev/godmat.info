@@ -1,6 +1,6 @@
 
 import { db } from '../firebase/firebase';
-import { collection, query, getDocs, setDoc, getDoc, doc, deleteDoc } from 'firebase/firestore';
+import { collection, query, getDocs, setDoc, getDoc, doc, deleteDoc, where } from 'firebase/firestore';
 import { Food } from './food';
 export { FoodRegister }
 
@@ -70,5 +70,20 @@ namespace FoodRegister {
         });
         console.log(`[DB] Read all!`);
         return foods;
+    }
+
+    /**
+     * Gets all foods whose names include `searchString`.
+     * **This is probably not scalable.**
+     * 
+     * @param searchString the string to search for
+     * @returns array of matching foods
+     */
+    export async function getMatches(searchString: string):
+            Promise<Array<Food>> {
+        const allFoods = await getAll();
+        return allFoods.filter((food: Food) => {
+            return food.name.toLowerCase().includes(searchString.toLowerCase());
+        });
     }
 }

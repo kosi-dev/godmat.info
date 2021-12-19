@@ -7,9 +7,11 @@
 	import { signIn, auth } from '$lib/firebase/firebase';
 	import { onAuthStateChanged } from 'firebase/auth';
 	import Button from '$lib/ui/Button.svelte';
+	import TextField from '$lib/ui/TextField.svelte';
 
 	let foods: Array<Food> = []
 	let user = auth.currentUser;
+	let searchString: string;
 
 	onMount(async () => {
 		foods = await FoodRegister.getAll();
@@ -32,6 +34,17 @@
 		await FoodRegister.put(food);
 		goto('/food/' + food.getId())
 	}
+
+	async function updateFoods(searchString: string) {
+		if (searchString) {
+			foods = await FoodRegister.getMatches(searchString);
+		} else {
+			foods = await FoodRegister.getAll();
+		}
+	}
+
+	$: updateFoods(searchString);
+
 </script>
 
 
@@ -43,6 +56,10 @@
 	<Button onClick={signOutButtonOnClick} text={'Sign out'}/>
 	<Button onClick={createFoodButtonOnClick} text={'+ Create new food'}/>
 {/if}
+<br>
+<br>
+<h3>Search</h3>
+<TextField bind:value={searchString} style={'width: 50%'}></TextField>
 <br>
 <br>
 {#each foods as food}
