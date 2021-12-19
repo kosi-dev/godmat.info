@@ -33,8 +33,8 @@
 				<Tag {text}/>
 			{/each}
 		</p>
-		{#if onDestroy}
-			<Button on:click={() => onDestroy()}>Delete</Button>
+		{#if onDestroy !== undefined}
+			<Button text={"Delete"} onClick={onDestroy}></Button>
 		{/if}
 	{:else}
 		<h3>Undefined food!</h3>

@@ -17,6 +17,9 @@ const FoodTagLabels: Map<FoodTag, string> = new Map<FoodTag, string>([
 	[FoodTag.Vegan, '🥗 Vegetar']
 ]);
 
+/**
+ * Does never write anything to the database.
+ */
 class Food {
 	public name: string;
 	public description: string;
@@ -57,7 +60,7 @@ class Food {
 	public getTagNames(): Array<string> {
 		return this.getTags().map((foodTag) => FoodTagLabels.get(foodTag));
 	}
-
+	
 	public addTag(tag: FoodTag) {
 		this._tags.push(tag);
 	}
@@ -102,6 +105,18 @@ class Food {
 	}
 
 	/**
+	 * Removes `food` as an ingredient to this food.
+	 * 
+	 * @param food the ingredient to remove
+	 */
+	public removeIngredient(food: Food) {
+		const index = this._ingredients.indexOf(food.getId());
+		if (index != -1) {
+			this._ingredients.splice(index, 1);
+		}
+	}
+
+	/**
 	 * Does only return ingredient children, not all decendants.
 	 * 
 	 * @returns the direct ingredient children
@@ -126,8 +141,7 @@ class Food {
 	 */
 	public async hasIngredient(food: Food): Promise<boolean> {
 		for (let ingredient of await this.getIngredients()) {
-			if (ingredient.getId() === food.getId()
-					|| ingredient.hasIngredient(food)) {
+			if (ingredient.getId() === food.getId() || await ingredient.hasIngredient(food)) {
 				return true;
 			}
 		}

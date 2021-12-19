@@ -71,14 +71,19 @@
 		}
 	}
 
+	async function removeIngredient(ingredient: Food) {
+		food.removeIngredient(ingredient);
+		await FoodRegister.put(food);
+		await readFood();
+	}
+
 	async function deleteButtonOnClick() {
 		await FoodRegister.remove(food);
 		goto('../')
 	}
 
-	
 	async function updateSearchResults(searchString: string) {
-		if (searchString.length) {
+		if (searchString.length > 1) {
 			searchResults = await FoodRegister.getMatches(searchString);
 		} else {
 			searchResults = [];
@@ -132,7 +137,7 @@
 		{/each}
 		{#each ingredients as ingredient}
 			<div on:click={() => gotoIngredient(ingredient)}>
-				<FoodItem food={ingredient}></FoodItem>
+				<FoodItem food={ingredient} onDestroy={() => removeIngredient(ingredient)}></FoodItem>
 			</div>
 		{/each}
 	{:else}
