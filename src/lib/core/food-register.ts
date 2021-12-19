@@ -25,7 +25,7 @@ namespace FoodRegister {
      */
     export async function remove(food: Food): Promise<boolean> {
         for (let other of await getAll()) { // Not sure if this is scalable.
-            if (other.hasIngredient(food)) {
+            if (other.getId() !== food.getId() && other.hasIngredient(food)) {
                 console.warn(`[DB] Could not delete ${food.name}`);
                 return false;
             }
