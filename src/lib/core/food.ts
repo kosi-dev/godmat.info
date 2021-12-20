@@ -31,7 +31,8 @@ class Food {
 	private _id: string;
 	private _basePrice: number;
 	private _tags: Array<FoodTag> = [];
-	private _ingredients: Array<string> = [];
+	private _ingredients: Object = {};
+	private _parents: Array<string> = [];
 	private _time: string = getTime();
 	private _author: string;
 
@@ -108,13 +109,19 @@ class Food {
 	 * @param food the ingredient to add
 	 * @returns `true` if `food` was added, `false` otherwise
 	 */
-	public async addIngredient(food: Food): Promise<boolean> {
-		if (await food.hasIngredient(this)) {
+	public async addIngredient(ingredient: Food, weight: number = 0)
+			: Promise<boolean> {
+		if (await ingredient.hasIngredient(this)) {
 			console.error('Cyclic ingredients are not allowed!');
 			return false;
 		}
-		this._ingredients.push(food.getId());
+		this._ingredients[ingredient.getId()] = weight;
+		ingredient.addParent(this);
 		return true;
+	}
+
+	public setIngredientWeight(ingredient: Food, weight: number) {
+		this._ingredients[ingredient.getId()] = weight;
 	}
 
 	/**
@@ -122,11 +129,9 @@ class Food {
 	 * 
 	 * @param food the ingredient to remove
 	 */
-	public removeIngredient(food: Food) {
-		const index = this._ingredients.indexOf(food.getId());
-		if (index != -1) {
-			this._ingredients.splice(index, 1);
-		}
+	public removeIngredient(ingredient: Food) {
+		delete this._ingredients[ingredient.getId()];
+		ingredient.removeParent(this);
 	}
 
 	/**
@@ -136,14 +141,14 @@ class Food {
 	 */
 	public async getIngredients(): Promise<Array<Food>> {
 		let ingredients: Array<Food> = [];
-		for (let id of this._ingredients) {
+		for (let id of Object.keys(this._ingredients)) {
 			ingredients.push(await FoodRegister.get(id));
 		}
 		return ingredients;
 	}
 
 	public getIngredientIds(): Array<string> {
-		return [...this._ingredients];
+		return Object.keys(this._ingredients);
 	}
 
 	/**
@@ -167,6 +172,21 @@ class Food {
 
 	public getBasePrice(): number {
 		return this._basePrice;
+	}
+
+	public addParent(parent: Food) {
+		this._parents.push(parent.getId());
+	}
+
+	public removeParent(parent: Food) {
+		const index = this._parents.indexOf(parent.getId());
+		if (index != -1) {
+			this._parents.splice(index, 1);
+		}
+	}
+
+	public hasParents() {
+		return this._parents.length != 0;
 	}
 
 	/**
