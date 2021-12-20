@@ -59,7 +59,11 @@
 		}
 	}
 
-	$: updateFoods(searchString, selectedTag);
+	function onKeyPress(event) {
+		if (event.charCode === 13){
+			updateFoods(searchString, selectedTag);
+		}
+	}
 </script>
 
 
@@ -74,7 +78,7 @@
 <br>
 <br>
 <h3>Search</h3>
-<TextField bind:value={searchString} style={'width: 50%'}></TextField>
+<TextField bind:value={searchString} {onKeyPress} style={'width: 50%'}></TextField>
 <br>
 <br>
 <details>

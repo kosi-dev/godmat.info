@@ -82,15 +82,16 @@
 		goto('../')
 	}
 
-	async function updateSearchResults(searchString: string) {
-		if (searchString.length > 1) {
-			searchResults = await FoodRegister.getMatches(searchString);
-		} else {
+	async function onKeyPress(event) {
+		let key = event.keyCode || event.charCode;
+		console.log(key);
+		if (key === 8) {
 			searchResults = [];
+		} else if (key === 13) {
+			searchResults = await FoodRegister.getMatches(searchString);
 		}
 	}
 
-	$: updateSearchResults(searchString);
 </script>
 
 <Button onClick={() => goto('../')} text={'Home'}/>
@@ -128,7 +129,7 @@
 			/>
 		{/each}
 		<h3>Ingredients</h3>
-		<TextField bind:value={searchString} style={'width: 50%'}></TextField>
+		<TextField bind:value={searchString} {onKeyPress} style={'width: 50%'}/>
 		<br>
 		{#each searchResults as ingredient}
 			<div on:click={() => addIngredient(ingredient)}>
