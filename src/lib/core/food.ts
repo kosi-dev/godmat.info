@@ -2,7 +2,7 @@ import { FoodRegister } from './food-register';
 import { v4 as uuidv4 } from 'uuid';
 import dateFormat from 'dateformat';
 
-export { Food, FoodTagLabels }
+export { Food, FoodTag, FoodTagLabels }
 
 enum FoodTag {
 	Zero,

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { Food } from '$lib/core/food';
+	import { Food, FoodTag, FoodTagLabels } from '$lib/core/food';
 	import { FoodRegister } from '$lib/core/food-register';
 	import FoodItem from '$lib/ui/FoodItem.svelte';
 	import { onMount } from 'svelte';
@@ -8,10 +8,12 @@
 	import { onAuthStateChanged } from 'firebase/auth';
 	import Button from '$lib/ui/Button.svelte';
 	import TextField from '$lib/ui/TextField.svelte';
+	import SwitchButton from '$lib/ui/SwitchButton.svelte';
 
 	let foods: Array<Food> = []
 	let user = auth.currentUser;
-	let searchString: string;
+	let searchString: string = "";
+	let selectedTag: FoodTag = null;
 
 	async function addMatvareTabellen() {
 		await fetch("/matvaretabellen.json")
@@ -49,15 +51,15 @@
 		goto('/food/' + food.getId())
 	}
 
-	async function updateFoods(searchString: string) {
-		if (searchString) {
-			foods = await FoodRegister.getMatches(searchString);
+	async function updateFoods(searchString: string, selectedTag: FoodTag) {
+		if (searchString.length > 1) {
+			foods = await FoodRegister.getMatches(searchString, selectedTag);
 		} else {
-			foods = await FoodRegister.getAll();
+			foods = await FoodRegister.getAll(selectedTag);
 		}
 	}
 
-	$: updateFoods(searchString);
+	$: updateFoods(searchString, selectedTag);
 </script>
 
 
@@ -74,6 +76,18 @@
 <h3>Search</h3>
 <TextField bind:value={searchString} style={'width: 50%'}></TextField>
 <br>
+<br>
+<details>
+	<summary>Filter by tag</summary>
+	{#each [...FoodTagLabels] as [tag, text]}
+		<SwitchButton
+			state={tag === selectedTag}
+			offText={text}
+			switchOff={() => selectedTag = null}
+			switchOn={() => selectedTag = tag}
+		/>
+	{/each}
+</details>
 <br>
 {#each foods as food}
 	<div on:click={() => goto('/food/' + food.getId())}>

@@ -1,7 +1,7 @@
 
 import { db } from '../firebase/firebase';
-import { collection, query, getDocs, setDoc, getDoc, doc, deleteDoc, where, limit, updateDoc, orderBy } from 'firebase/firestore';
-import { Food } from './food';
+import { collection, query, getDocs, setDoc, getDoc, doc, deleteDoc, where, limit, updateDoc, orderBy, Query } from 'firebase/firestore';
+import { Food, FoodTag } from './food';
 
 export { FoodRegister }
 
@@ -67,8 +67,13 @@ namespace FoodRegister {
      * 
      * @returns array of all foods
      */
-    export async function getAll(): Promise<Array<Food>> {
-        const q = query(collection(db, "foodRegister"), orderBy("_time", "desc"), limit(max_count)); //TODO: paginate results
+    export async function getAll(tag: FoodTag = null): Promise<Array<Food>> {
+        let q: Query;
+        if (tag !== null) {
+            q = query(collection(db, "foodRegister"), where("_tags", "array-contains", tag), orderBy("_time", "desc"), limit(max_count)); //TODO: paginate results
+        } else {
+            q = query(collection(db, "foodRegister"), orderBy("_time", "desc"), limit(max_count)); //TODO: paginate results
+        }
         const querySnapshot = await getDocs(q);
         const foods: Array<Food> = [];
         querySnapshot.forEach((docSnap) => {
@@ -84,8 +89,8 @@ namespace FoodRegister {
      * @param searchString the string to search for
      * @returns array of matching foods
      */
-    export async function getMatches(searchString: string):
-        Promise<Array<Food>> {
+    export async function getMatches(searchString: string, tag: FoodTag = null):
+            Promise<Array<Food>> {
         const docSnap = await getDoc(keyRef);
         if (!docSnap.exists()) {
             console.log(`[DB] Could not read from keys!`);
@@ -96,10 +101,13 @@ namespace FoodRegister {
         let count = 0;
         for (let key of Object.keys(data)) {
             if (key.toLowerCase().includes(searchString.toLowerCase())) {
-                foods.push(await get(data[key]));
-                count += 1;
-                if (count == max_count) {
-                    break;
+                let food: Food = await get(data[key]);
+                if (tag === null || food.hasTag(tag)) {
+                    foods.push(food);
+                    count += 1;
+                    if (count == max_count) {
+                        break;
+                    }
                 }
             }
         }
