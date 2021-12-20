@@ -96,10 +96,10 @@
 <Button onClick={() => goto('../')} text={'Home'}/>
 
 {#if food}
-	{#if user != null}
+	{#if user && user.uid === food.getAuthor()}
 		<Button onClick={editButtonOnClick} text={edit? 'Save' : 'Edit'}/>
-		{/if}
-		{#if edit}
+	{/if}
+	{#if edit}
 		<ButtonWithDialog
 			text={"Cancel"}
 			onClick={cancelEdit}
