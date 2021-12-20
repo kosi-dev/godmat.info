@@ -1,5 +1,6 @@
 import { FoodRegister } from './food-register';
 import { v4 as uuidv4 } from 'uuid';
+import dateFormat from 'dateformat';
 
 export { Food, FoodTagLabels }
 
@@ -17,6 +18,10 @@ const FoodTagLabels: Map<FoodTag, string> = new Map<FoodTag, string>([
 	[FoodTag.Vegan, '🥗 Vegetar']
 ]);
 
+function getTime() {
+	return dateFormat(new Date(), "yyyy.mm.dd hh:MM:ss");
+}
+
 /**
  * Does never write anything to the database.
  */
@@ -27,6 +32,8 @@ class Food {
 	private _basePrice: number;
 	private _tags: Array<FoodTag> = [];
 	private _ingredients: Array<string> = [];
+	private _time: string = getTime();
+	private _author: string;
 
 	/**
 	 * Constructs a Food instance.
@@ -37,10 +44,12 @@ class Food {
 	 */
 	public constructor(
 			name: string = 'Untitled Food',
-			basePrice: number = 0,
-			description: string = 'Empty description.') {
+			author: string = '',
+			description: string = '',
+			basePrice: number = 0,) {
 		this.name = name;
 		this.description = description;
+		this._author = author;
 		this._basePrice = basePrice;
 		this._id = this.generateId();
 	}
@@ -53,6 +62,10 @@ class Food {
 		return this._id;
 	}
 
+	public getAuthor(): string {
+		return this._author;
+	}
+	
 	public getTags(): Array<FoodTag> {
 		return [...this._tags];
 	}
@@ -167,5 +180,9 @@ class Food {
 			price += await ingredient.getPrice();
 		}
 		return price;
+	}
+
+	public getTime() {
+		return this._time;
 	}
 }

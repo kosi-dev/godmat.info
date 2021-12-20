@@ -30,7 +30,7 @@
 	}
 
 	async function createFoodButtonOnClick() {
-		let food: Food = new Food("Untitled");
+		let food: Food = new Food("Untitled", user.uid);
 		await FoodRegister.put(food);
 		goto('/food/' + food.getId())
 	}
