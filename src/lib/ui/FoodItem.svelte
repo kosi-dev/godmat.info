@@ -10,13 +10,15 @@
 	// Some variables are explicit because their getters are async.
 	let ingredients: Array<Food> = [];
 	let price: number = 0;
-
-	onMount(async () => {
+	
+	async function updateAttributes(food) {
 		if (food != null) {
 			ingredients = await food.getIngredients();
 			price = await food.getPrice();
 		}
-	});
+	}
+
+	$: updateAttributes(food);
 </script>
 
 <div>
