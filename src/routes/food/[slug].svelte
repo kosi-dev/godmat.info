@@ -83,11 +83,9 @@
 	}
 
 	async function onKeyPress(event) {
-		let key = event.keyCode || event.charCode;
-		console.log(key);
-		if (key === 8) {
+		if (event.keyCode === 8) {
 			searchResults = [];
-		} else if (key === 13) {
+		} else if (event.keyCode === 13) {
 			searchResults = await FoodRegister.getMatches(searchString);
 		}
 	}

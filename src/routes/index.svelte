@@ -59,8 +59,13 @@
 		}
 	}
 
+	function updateSelectedTag(tag: FoodTag) {
+		selectedTag = tag;
+		updateFoods(searchString, selectedTag);
+	}
+
 	function onKeyPress(event) {
-		if (event.charCode === 13){
+		if (event.keyCode === 13){
 			updateFoods(searchString, selectedTag);
 		}
 	}
@@ -87,8 +92,8 @@
 		<SwitchButton
 			state={tag === selectedTag}
 			offText={text}
-			switchOff={() => selectedTag = null}
-			switchOn={() => selectedTag = tag}
+			switchOff={() => updateSelectedTag(null)}
+			switchOn={() => updateSelectedTag(tag)}
 		/>
 	{/each}
 </details>
