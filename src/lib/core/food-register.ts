@@ -91,9 +91,14 @@ namespace FoodRegister {
         }
         const data: object = docSnap.data();
         const foods: Array<Food> = [];
+        let count = 0;
         for (let key of Object.keys(data)) {
             if (key.toLowerCase().includes(searchString.toLowerCase())) {
                 foods.push(await get(data[key]));
+                count += 1;
+                if (count == 25) {
+                    break;
+                }
             }
         }
         console.log(`[DB] Read matches of ${searchString}!`);
