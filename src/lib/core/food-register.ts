@@ -5,6 +5,8 @@ import { Food } from './food';
 
 export { FoodRegister }
 
+let max_count: number = 5;
+
 namespace FoodRegister {
     const keyRef = doc(db, "keys", "keys");
 
@@ -66,7 +68,7 @@ namespace FoodRegister {
      * @returns array of all foods
      */
     export async function getAll(): Promise<Array<Food>> {
-        const q = query(collection(db, "foodRegister"), orderBy("_time", "desc"), limit(25)); //TODO: paginate results
+        const q = query(collection(db, "foodRegister"), orderBy("_time", "desc"), limit(max_count)); //TODO: paginate results
         const querySnapshot = await getDocs(q);
         const foods: Array<Food> = [];
         querySnapshot.forEach((docSnap) => {
@@ -96,7 +98,7 @@ namespace FoodRegister {
             if (key.toLowerCase().includes(searchString.toLowerCase())) {
                 foods.push(await get(data[key]));
                 count += 1;
-                if (count == 25) {
+                if (count == max_count) {
                     break;
                 }
             }
