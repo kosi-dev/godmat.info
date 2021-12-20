@@ -22,16 +22,17 @@
 <div>
 	{#if food}
 		<h3>{food.getName()}</h3>
+		{#each food.getTagNames() as text}
+			<Tag {text}/>
+		{/each}
 		<p>
-			<span>Price: {price}</span>
-			<span>Ingredients:
-				{#each ingredients as ingredient}
-					<span>{ingredient.getName() + ', '}</span>
-				{/each}
-			</span>
-			{#each food.getTagNames() as text}
-				<Tag {text}/>
-			{/each}
+			{#if ingredients.length}
+				<span>Ingredienser:
+					{#each ingredients as ingredient}
+						<span>{ingredient.getName() + ', '}</span>
+					{/each}
+				</span>
+			{/if}
 		</p>
 		{#if onDestroy !== undefined}
 			<Button text={"Delete"} onClick={onDestroy}></Button>

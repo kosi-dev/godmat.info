@@ -5,17 +5,47 @@ import dateFormat from 'dateformat';
 export { Food, FoodTagLabels }
 
 enum FoodTag {
+	Zero,
+	MilkProduct,
+	EggProduct,
+	MeatProduct,
+	FishProduct,
+	WheatRicePastaProduct,
+	VegetableFruitProduct,
+	SugerProduct,
+	ButterOilProduct,
+	DrinkProduct,
+	VariousProduct,
+	Babyfood,
 	Breakfast,
 	Lunch,
+	Starters,
 	Dinner,
-	Vegan,
+	Dessert,
+	Snack,
+	Vegetarian,
 }
 
 const FoodTagLabels: Map<FoodTag, string> = new Map<FoodTag, string>([
+	[FoodTag.Zero, '💀 Zero'],
+	[FoodTag.MilkProduct, '🥛 Melk'],
+	[FoodTag.EggProduct, '🥚 Egg'],
+	[FoodTag.MeatProduct, '🥩 Kjøtt'],
+	[FoodTag.FishProduct, '🐟 Fisk'],
+	[FoodTag.WheatRicePastaProduct, '🍞 Korn- og bakevarer'],
+	[FoodTag.VegetableFruitProduct, '🥦 Frukt og grønnsaker'],
+	[FoodTag.SugerProduct, '🍭 Sukker'],
+	[FoodTag.ButterOilProduct, '🧈 Smør og olje'],
+	[FoodTag.DrinkProduct, '🍹 Drikke'],
+	[FoodTag.VariousProduct, '❓ Varierte produkter'],
+	[FoodTag.Babyfood, '👶 Babymat'],
 	[FoodTag.Breakfast, '🍳 Frokost'],
 	[FoodTag.Lunch, '🥪 Lunsj'],
+	[FoodTag.Starters, '🧀 Forrett'],
 	[FoodTag.Dinner, '🍲 Middag'],
-	[FoodTag.Vegan, '🥗 Vegetar']
+	[FoodTag.Dessert, '🍨 Dessert'],
+	[FoodTag.Snack, '🍿 Snacks'],
+	[FoodTag.Vegetarian, '🥗 Vegetar']
 ]);
 
 function getTime() {
