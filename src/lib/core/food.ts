@@ -35,6 +35,7 @@ class Food {
 	private _parents: Array<string> = [];
 	private _time: string = getTime();
 	private _author: string;
+	private _nutrition: Object;
 
 	/**
 	 * Constructs a Food instance.
@@ -47,11 +48,13 @@ class Food {
 			name: string = 'Untitled Food',
 			author: string = '',
 			description: string = '',
-			basePrice: number = 0,) {
+			basePrice: number = 0,
+			nutrition: Object = {}) {
 		this.name = name;
 		this.description = description;
 		this._author = author;
 		this._basePrice = basePrice;
+		this._nutrition = nutrition;
 		this._id = this.generateId();
 	}
 
@@ -204,5 +207,9 @@ class Food {
 
 	public getTime() {
 		return this._time;
+	}
+
+	public getNutrition() {
+		return this._nutrition; // TODO: Count ingredients.
 	}
 }

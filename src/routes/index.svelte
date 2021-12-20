@@ -13,8 +13,21 @@
 	let user = auth.currentUser;
 	let searchString: string;
 
+	async function addMatvareTabellen() {
+		await fetch("/matvaretabellen.json")
+			.then((response) => response.json())
+			.then(async (json) => {
+				for (let foodData of json.foods) {
+					let food: Food = new Food(foodData.name, user.uid, "", 0, foodData.nutrition);
+					await FoodRegister.put(food);
+				}
+			})
+			.catch((error) => console.error(error));
+	}
+
 	onMount(async () => {
 		foods = await FoodRegister.getAll();
+		// addMatvareTabellen();
 	});
 	
 	onAuthStateChanged(auth, async (u) => {
@@ -44,7 +57,6 @@
 	}
 
 	$: updateFoods(searchString);
-
 </script>
 
 
