@@ -2,8 +2,8 @@
     import Button from "./Button.svelte";
 
     export let text: string = "";
-    export let leftButtonText = "Cancel";
-    export let rightButtonText = "Confirm";
+    export let leftButtonText = "No";
+    export let rightButtonText = "Yes";
     export let leftButtonOnClick = null;
     export let rightButtonOnClick = null;
 </script>

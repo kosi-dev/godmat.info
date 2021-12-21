@@ -52,8 +52,8 @@ function getTime() {
 }
 
 class Food {
-	public _name: string = '';
-	public _description: string = '';
+	private _name: string = '';
+	private _description: string = '';
 	private _id: string = '';
 	private _basePrice: number = 0;
 	private _tags: Array<FoodTag> = [];

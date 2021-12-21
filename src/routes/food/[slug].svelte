@@ -23,7 +23,9 @@
 	import Tag from '$lib/ui/Tag.svelte';
 	import TextField from '$lib/ui/TextField.svelte';
 	import { onMount } from 'svelte';
-	
+	import TextArea from '$lib/ui/TextArea.svelte';
+	import NutritionDiagram from '$lib/ui/NutritionDiagram.svelte';
+
 	let edit: boolean = false;
 	let user = null;
 	let food: Food;
@@ -114,12 +116,13 @@
 			(document.activeElement as HTMLElement).blur();
 		}
 	}
-
 </script>
 
 <Button onClick={() => goto('../')} text={'Home'}/>
 
-{#if food}
+{#if food === undefined}
+	<h2>Loading..</h2>
+{:else}
 	{#if user && user.uid === food.getAuthor()}
 		<Button onClick={editButtonOnClick} text={edit? 'Save' : 'Edit'}/>
 	{/if}
@@ -127,12 +130,12 @@
 		<ButtonWithDialog
 			text={"Cancel"}
 			onClick={cancelEdit}
-			dialogText={"Are you sure?"}
+			dialogText={"Are you sure you want to discard your changes?"}
 		/>
 		<ButtonWithDialog
 			text={"Delete " + food.getName()}
 			onClick={deleteButtonOnClick}
-			dialogText={"Are you sure?"}
+			dialogText={`Are you sure you want to delete ${food.getName()}?`}
 		/>
 		<h3>Name</h3>
 		<div>
@@ -140,7 +143,7 @@
 		</div>
 		<h3>Description</h3>
 		<div>
-			<TextField bind:value={description}/>
+			<TextArea bind:value={description}/>
 		</div>
 		<h3>Tags</h3>
 		{#each [...FoodTagLabels] as [tag, text]}
@@ -169,15 +172,21 @@
 		{#each food.getTagNames() as text}
 			<Tag {text}/>
 		{/each}
+		<p>{food.getTime().split(" ")[0]}</p>
 		<p>{food.getDescription()}</p>
+
 		
-		<h3>Ingredients</h3>
-		{#each ingredients as ingredient}
+		{#if ingredients.length}
+			<h3>Ingredients</h3>
+			{#each ingredients as ingredient}
 			<div on:click={() => gotoFood(ingredient)}>
 				<FoodItem food={ingredient}></FoodItem>
 			</div>
-		{/each}
+			{/each}
+		{/if}
+
+		{#if food.getNutrition()}
+			<NutritionDiagram nutrition={food.getNutrition()}/>
+		{/if}
 	{/if}
-{:else}
-	<h2>Undefined food!</h2>
 {/if}

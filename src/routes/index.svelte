@@ -74,7 +74,8 @@
 </script>
 
 
-<h1>Food Register</h1>
+<h1>godmat.info</h1>
+<p>- God info om god mat!</p>
 {#if !user}
 	<Button onClick={signInButtonOnClick} text={'Sign in'}/>
 {:else}
