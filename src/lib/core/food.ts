@@ -16,7 +16,7 @@ enum FoodTag {
 	ButterOilProduct,
 	DrinkProduct,
 	VariousProduct,
-	Babyfood,
+	BabyFood,
 	Breakfast,
 	Lunch,
 	Starters,
@@ -27,7 +27,6 @@ enum FoodTag {
 }
 
 const FoodTagLabels: Map<FoodTag, string> = new Map<FoodTag, string>([
-	[FoodTag.Zero, '💀 Zero'],
 	[FoodTag.MilkProduct, '🥛 Melk'],
 	[FoodTag.EggProduct, '🥚 Egg'],
 	[FoodTag.MeatProduct, '🥩 Kjøtt'],
@@ -37,8 +36,8 @@ const FoodTagLabels: Map<FoodTag, string> = new Map<FoodTag, string>([
 	[FoodTag.SugerProduct, '🍭 Sukker'],
 	[FoodTag.ButterOilProduct, '🧈 Smør og olje'],
 	[FoodTag.DrinkProduct, '🍹 Drikke'],
-	[FoodTag.VariousProduct, '❓ Varierte produkter'],
-	[FoodTag.Babyfood, '👶 Babymat'],
+	[FoodTag.VariousProduct, '📦 Varierte produkter'],
+	[FoodTag.BabyFood, '👶 Barnemat'],
 	[FoodTag.Breakfast, '🍳 Frokost'],
 	[FoodTag.Lunch, '🥪 Lunsj'],
 	[FoodTag.Starters, '🧀 Forrett'],
