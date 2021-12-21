@@ -5,3 +5,4 @@ node_modules
 /package
 /functions/ssrServer
 /.firebase
+/static/matvaretabellen.json

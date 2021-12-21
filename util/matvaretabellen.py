@@ -27,12 +27,12 @@ for i, food in enumerate(foods):
 
     newFood["groupId"] = int(newFood["groupId"][0])
 
-    illegal = ("~", "*", "/", "[", "]")
-    newFood["name"] = "".join([c for c in newFood["name"] if not c in illegal])
-    if newFood["name"].endswith("."):
-        newFood["name"] = newFood["name"][:-1]
-    if newFood["name"].startswith("."):
-        newFood["name"] = newFood["name"][1:]
+    # illegal = ("~", "*", "/", "[", "]")
+    # newFood["name"] = "".join([c for c in newFood["name"] if not c in illegal])
+    # if newFood["name"].endswith("."):
+    #     newFood["name"] = newFood["name"][:-1]
+    # if newFood["name"].startswith("."):
+    #     newFood["name"] = newFood["name"][1:]
     
     for key in (
             "synonym",
