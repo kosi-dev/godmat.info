@@ -24,7 +24,7 @@
 	import TextField from '$lib/ui/TextField.svelte';
 	
 	let edit: boolean = false;
-	let user = auth.currentUser;
+	let user = null;
 	let food: Food;
 	let ingredients: Array<Food> = [];
 	let name: string = '';

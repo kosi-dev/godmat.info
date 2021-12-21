@@ -11,7 +11,7 @@
 	import { nanoid } from 'nanoid';
 
 	let foods: Array<Food> = []
-	let user = auth.currentUser;
+	let user = null;
 	let searchString: string = "";
 	let selectedTag: FoodTag = null;
 
