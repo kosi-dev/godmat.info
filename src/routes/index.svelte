@@ -4,11 +4,12 @@
 	import { FoodRegister } from '$lib/core/food-register';
 	import FoodItem from '$lib/ui/FoodItem.svelte';
 	import { signIn, auth } from '$lib/firebase/firebase';
-	import { onAuthStateChanged } from 'firebase/auth';
+	import { onAuthStateChanged } from '@firebase/auth';
 	import Button from '$lib/ui/Button.svelte';
 	import TextField from '$lib/ui/TextField.svelte';
 	import SwitchButton from '$lib/ui/SwitchButton.svelte';
 	import { nanoid } from 'nanoid';
+	import { onMount } from 'svelte';
 
 	let foods: Array<Food> = []
 	let user = null;
@@ -28,13 +29,15 @@
 			.catch((error) => console.error(error));
 	}
 
-	onAuthStateChanged(auth, async (u) => {
-		user = u;
-		if (user) {
-			// await addMatvareTabellen();
-		}
+	onMount(async () => {
 		await FoodRegister.init();
 		foods = await FoodRegister.getAll();
+		onAuthStateChanged(auth, async (u) => {
+			user = u;
+			if (user) {
+				// await addMatvareTabellen();
+			}
+		});
 	});
 
 	async function signInButtonOnClick() {

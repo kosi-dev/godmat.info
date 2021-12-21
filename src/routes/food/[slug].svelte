@@ -16,12 +16,13 @@
 	import { FoodRegister } from '$lib/core/food-register';
 	import FoodItem from '$lib/ui/FoodItem.svelte';
 	import ButtonWithDialog from "$lib/ui/ButtonWithDialog.svelte";
-	import { onAuthStateChanged } from 'firebase/auth';
+	import { onAuthStateChanged } from '@firebase/auth';
 	import { auth } from "$lib/firebase/firebase";
 	import Button from '$lib/ui/Button.svelte';
 	import SwitchButton from '$lib/ui/SwitchButton.svelte';
 	import Tag from '$lib/ui/Tag.svelte';
 	import TextField from '$lib/ui/TextField.svelte';
+	import { onMount } from 'svelte';
 	
 	let edit: boolean = false;
 	let user = null;
@@ -31,18 +32,20 @@
 	let description: string = '';
 	let searchString: string = '';
 	let searchResults: Array<Food> = [];
-
-	onAuthStateChanged(auth, async (u) => {
-		user = u;
-		if (user) {
-			await FoodRegister.init();
-			await readFood();
-			if (food == null) {
-				food = new Food("Untitled", user.uid, slug);
-				edit = true;
+	
+	onMount(async () => {
+		await FoodRegister.init();
+		await readFood();
+		onAuthStateChanged(auth, async (u) => {
+			user = u;
+			if (user) {
+				if (food == null) {
+					food = new Food("Untitled", user.uid, slug);
+					edit = true;
+				}
 			}
-		}
-	});
+		});
+	})
 
 	async function readFood() {
 		food = await FoodRegister.get(slug);

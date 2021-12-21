@@ -1,5 +1,5 @@
 import { db } from '../firebase/firebase';
-import { collection, query, getDocs, setDoc, getDoc, doc, deleteDoc, where, limit, updateDoc, orderBy, Query, deleteField, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { collection, query, getDocs, setDoc, getDoc, doc, deleteDoc, where, limit, updateDoc, orderBy, Query, deleteField, arrayUnion, arrayRemove } from '@firebase/firestore';
 import { Food, FoodTag } from './food';
 
 export { FoodRegister }
