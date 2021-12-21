@@ -21,11 +21,12 @@ for i, food in enumerate(foods):
             "id",
             "name",
             "slug",
+            "synonym"
             ):
         newFood[key] = food[key]
         del food[key]
 
-    newFood["groupId"] = int(newFood["groupId"][0])
+    newFood["groupId"] = int(newFood["groupId"].split('.')[0])
 
     # illegal = ("~", "*", "/", "[", "]")
     # newFood["name"] = "".join([c for c in newFood["name"] if not c in illegal])
@@ -35,7 +36,6 @@ for i, food in enumerate(foods):
     #     newFood["name"] = newFood["name"][1:]
     
     for key in (
-            "synonym",
             "sortName",
             "additionalInfo",
             "latinFamilyName",
