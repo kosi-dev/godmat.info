@@ -11,18 +11,18 @@
 </script>
 
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { Food, FoodTagLabels } from '$lib/core/food';
 	import { FoodRegister } from '$lib/core/food-register';
-	import FoodItem from '$lib/ui/FoodItem.svelte';
-	import ButtonWithDialog from "$lib/ui/ButtonWithDialog.svelte";
 	import { onAuthStateChanged } from '@firebase/auth';
 	import { auth } from "$lib/firebase/firebase";
 	import Button from '$lib/ui/Button.svelte';
+	import FoodItem from '$lib/ui/FoodItem.svelte';
+	import ButtonWithDialog from "$lib/ui/ButtonWithDialog.svelte";
 	import SwitchButton from '$lib/ui/SwitchButton.svelte';
 	import Tag from '$lib/ui/Tag.svelte';
 	import TextField from '$lib/ui/TextField.svelte';
-	import { onMount } from 'svelte';
 	import TextArea from '$lib/ui/TextArea.svelte';
 	import NutritionDiagram from '$lib/ui/NutritionDiagram.svelte';
 

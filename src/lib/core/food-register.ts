@@ -7,9 +7,9 @@ export { FoodRegister }
 
 namespace FoodRegister {
     const max_count: number = 5;
-    const nameRef = doc(db, "ext", "names");
-
+    
     export async function init() {
+        const nameRef = doc(db, "ext", "names");
         for (let ref of [nameRef]) {
             getDoc(ref).then((docSnap) => {
                 if (!docSnap.exists()) {
@@ -29,6 +29,7 @@ namespace FoodRegister {
         await setDoc(ref, Object.assign(new Object(), food));
         let data = {};
         data[food.getId()] = food.getName();
+        const nameRef = doc(db, "ext", "names");
         await updateDoc(nameRef, data);
         console.log(`[DB] Wrote ${food.getName()}`);
     }
@@ -52,6 +53,7 @@ namespace FoodRegister {
         await deleteDoc(ref);
         let data = {};
         data[food.getId()] = deleteField();
+        const nameRef = doc(db, "ext", "names");
         await updateDoc(nameRef, data);
         console.log(`[DB] Deleted ${food.getName()}`);
         return true;
@@ -107,6 +109,7 @@ namespace FoodRegister {
      */
     export async function getMatches(searchString: string, tag: FoodTag = null):
             Promise<Array<Food>> {
+        const nameRef = doc(db, "ext", "names");
         const docSnap = await getDoc(nameRef);
         if (!docSnap.exists()) {
             console.log(`[DB] Could not read from ext/names!`);
