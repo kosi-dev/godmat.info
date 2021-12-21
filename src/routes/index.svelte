@@ -31,10 +31,10 @@
 	onAuthStateChanged(auth, async (u) => {
 		user = u;
 		if (user) {
-			await FoodRegister.init();
 			// await addMatvareTabellen();
-			foods = await FoodRegister.getAll();
 		}
+		await FoodRegister.init();
+		foods = await FoodRegister.getAll();
 	});
 
 	async function signInButtonOnClick() {
