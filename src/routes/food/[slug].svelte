@@ -85,7 +85,7 @@
 		searchString = '';
 		searchResults = [];
 		if (await food.addIngredient(ingredient)) {
-			await FoodRegister.put(food);
+			await writeFood();
 			await readFood();
 		} else {
 			alert("Could not add ingredient!");
@@ -94,7 +94,7 @@
 
 	async function removeIngredient(ingredient: Food) {
 		food.removeIngredient(ingredient);
-		await FoodRegister.put(food);
+		await writeFood();
 		await readFood();
 	}
 
