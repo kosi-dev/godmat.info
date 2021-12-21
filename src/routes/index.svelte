@@ -3,7 +3,6 @@
 	import { Food, FoodTag, FoodTagLabels } from '$lib/core/food';
 	import { FoodRegister } from '$lib/core/food-register';
 	import FoodItem from '$lib/ui/FoodItem.svelte';
-	import { onMount } from 'svelte';
 	import { signIn, auth } from '$lib/firebase/firebase';
 	import { onAuthStateChanged } from 'firebase/auth';
 	import Button from '$lib/ui/Button.svelte';
@@ -29,14 +28,13 @@
 			.catch((error) => console.error(error));
 	}
 
-	onMount(async () => {
-		await FoodRegister.init();
-		foods = await FoodRegister.getAll();
-		// addMatvareTabellen();
-	});
-	
 	onAuthStateChanged(auth, async (u) => {
 		user = u;
+		if (user) {
+			await FoodRegister.init();
+			// await addMatvareTabellen();
+			foods = await FoodRegister.getAll();
+		}
 	});
 
 	async function signInButtonOnClick() {
