@@ -1,15 +1,15 @@
 {
-  "hosting": {
-    "public": "build",
-    "rewrites": [
-      {
-        "source": "**",
-        "function": "ssrServer"
-      }
-    ],
-    "predeploy": ["npm run build"]
-  },
-  "functions": {
-    "source": "functions"
-  }
+	"hosting": {
+		"public": "build",
+		"rewrites": [
+			{
+				"source": "**",
+				"function": "ssrServer"
+			}
+		],
+		"predeploy": ["npm run build"]
+	},
+	"functions": {
+		"source": "functions"
+	}
 }

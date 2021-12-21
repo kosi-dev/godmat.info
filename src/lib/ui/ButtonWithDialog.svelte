@@ -1,31 +1,29 @@
-
 <script lang="ts">
-    import Button from "./Button.svelte";
-    import Dialog from "./Dialog.svelte";
+	import Button from './Button.svelte';
+	import Dialog from './Dialog.svelte';
 
-    export let text;
-    export let dialogText: string = "";
-    export let onClick;
-    
-    let showDialog = false;
-    
-    function buttonOnClick() {
-        showDialog = true;
-    }
+	export let text;
+	export let dialogText: string = '';
+	export let onClick;
 
-    function rightButtonOnClick() {
-        onClick();
-        showDialog = false;
-    }
+	let showDialog = false;
 
-    function leftButtonOnClick() {
-        showDialog = false;
-    }
+	function buttonOnClick() {
+		showDialog = true;
+	}
+
+	function rightButtonOnClick() {
+		onClick();
+		showDialog = false;
+	}
+
+	function leftButtonOnClick() {
+		showDialog = false;
+	}
 </script>
 
-
-<Button onClick={buttonOnClick} {text}></Button>
+<Button onClick={buttonOnClick} {text} />
 
 {#if showDialog}
-    <Dialog text={dialogText} {leftButtonOnClick} {rightButtonOnClick}></Dialog>
+	<Dialog text={dialogText} {leftButtonOnClick} {rightButtonOnClick} />
 {/if}

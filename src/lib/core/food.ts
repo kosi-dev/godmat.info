@@ -2,7 +2,7 @@ import { FoodRegister } from './food-register';
 import dateFormat from 'dateformat';
 import { nanoid } from 'nanoid';
 
-export { Food, FoodTag, FoodTagLabels }
+export { Food, FoodTag, FoodTagLabels };
 
 enum FoodTag {
 	Zero,
@@ -23,7 +23,7 @@ enum FoodTag {
 	Dinner,
 	Dessert,
 	Snack,
-	Vegetarian,
+	Vegetarian
 }
 
 const FoodTagLabels: Map<FoodTag, string> = new Map<FoodTag, string>([
@@ -48,7 +48,7 @@ const FoodTagLabels: Map<FoodTag, string> = new Map<FoodTag, string>([
 ]);
 
 function getTime() {
-	return dateFormat(new Date(), "yyyy.mm.dd hh:MM:ss");
+	return dateFormat(new Date(), 'yyyy.mm.dd hh:MM:ss');
 }
 
 class Food {
@@ -66,16 +66,17 @@ class Food {
 
 	/**
 	 * Constructs a Food instance **without an id**.
-	 * 
+	 *
 	 * @param name food name
 	 * @param basePrice food base price
 	 * @param description food description
 	 */
 	public constructor(
-			name: string = 'Untitled Food',
-			author: string = '',
-			id = '',
-			nutrition: Object = {}) {
+		name: string = 'Untitled Food',
+		author: string = '',
+		id = '',
+		nutrition: Object = {}
+	) {
 		this._name = name;
 		this._author = author;
 		this._nutrition = nutrition;
@@ -85,7 +86,7 @@ class Food {
 	public getName(): string {
 		return this._name;
 	}
-	
+
 	public getId(): string {
 		return this._id;
 	}
@@ -93,7 +94,7 @@ class Food {
 	public getAuthor(): string {
 		return this._author;
 	}
-	
+
 	public getTags(): Array<FoodTag> {
 		return [...this._tags];
 	}
@@ -101,7 +102,7 @@ class Food {
 	public getTagNames(): Array<string> {
 		return this.getTags().map((foodTag) => FoodTagLabels.get(foodTag));
 	}
-	
+
 	public addTag(tag: FoodTag) {
 		this._tags.push(tag);
 	}
@@ -132,12 +133,11 @@ class Food {
 	/**
 	 * Adds `food` as an ingredient to this food.
 	 * Cyclic ingredients will not be added.
-	 * 
+	 *
 	 * @param food the ingredient to add
 	 * @returns `true` if `food` was added, `false` otherwise
 	 */
-	public async addIngredient(ingredient: Food, weight: number = 0)
-			: Promise<boolean> {
+	public async addIngredient(ingredient: Food, weight: number = 0): Promise<boolean> {
 		if (await ingredient.hasIngredient(this)) {
 			console.error('Cyclic ingredients are not allowed!');
 			return false;
@@ -153,7 +153,7 @@ class Food {
 
 	/**
 	 * Removes `food` as an ingredient to this food.
-	 * 
+	 *
 	 * @param food the ingredient to remove
 	 */
 	public removeIngredient(ingredient: Food) {
@@ -163,7 +163,7 @@ class Food {
 
 	/**
 	 * Does only return ingredient children, not all decendants.
-	 * 
+	 *
 	 * @returns the direct ingredient children
 	 */
 	public async getIngredients(): Promise<Array<Food>> {
@@ -180,13 +180,13 @@ class Food {
 
 	/**
 	 * Checks if `food` is an ingredient, **recursively** in this' decendants.
-	 * 
+	 *
 	 * @param food the ingredient to check for
 	 * @returns `true` if food is an ingredient, `false` otherwise
 	 */
 	public async hasIngredient(food: Food): Promise<boolean> {
 		for (let ingredient of await this.getIngredients()) {
-			if (ingredient.getId() === food.getId() || await ingredient.hasIngredient(food)) {
+			if (ingredient.getId() === food.getId() || (await ingredient.hasIngredient(food))) {
 				return true;
 			}
 		}
@@ -202,8 +202,8 @@ class Food {
 	}
 
 	public getParentIds(): any {
-        return [...this._parents];
-    }
+		return [...this._parents];
+	}
 
 	public addParent(parent: Food) {
 		this._parents.push(parent.getId());
@@ -224,7 +224,7 @@ class Food {
 
 	/**
 	 * Calculates price **recursively**, counting all decendants.
-	 * 
+	 *
 	 * @returns the total price of this food
 	 */
 	public async getPrice(): Promise<number> {

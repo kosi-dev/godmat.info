@@ -6,7 +6,7 @@
 	 */
 	export async function load({ page, fetch, session, context }) {
 		slug = page.params.slug;
-		return { props: { } };
+		return { props: {} };
 	}
 </script>
 
@@ -16,10 +16,10 @@
 	import { Food, FoodTagLabels } from '$lib/core/food';
 	import { FoodRegister } from '$lib/core/food-register';
 	import { onAuthStateChanged } from '@firebase/auth';
-	import { auth } from "$lib/firebase/firebase";
+	import { auth } from '$lib/firebase/firebase';
 	import Button from '$lib/ui/Button.svelte';
 	import FoodItem from '$lib/ui/FoodItem.svelte';
-	import ButtonWithDialog from "$lib/ui/ButtonWithDialog.svelte";
+	import ButtonWithDialog from '$lib/ui/ButtonWithDialog.svelte';
 	import SwitchButton from '$lib/ui/SwitchButton.svelte';
 	import Tag from '$lib/ui/Tag.svelte';
 	import TextField from '$lib/ui/TextField.svelte';
@@ -34,7 +34,7 @@
 	let description: string = '';
 	let searchString: string = '';
 	let searchResults: Array<Food> = [];
-	
+
 	onMount(async () => {
 		await FoodRegister.init();
 		await readFood();
@@ -42,12 +42,12 @@
 			user = u;
 			if (user) {
 				if (food == null) {
-					food = new Food("Untitled", user.uid, slug);
+					food = new Food('Untitled', user.uid, slug);
 					edit = true;
 				}
 			}
 		});
-	})
+	});
 
 	async function readFood() {
 		food = await FoodRegister.get(slug);
@@ -57,7 +57,7 @@
 			description = food.getDescription();
 		}
 	}
-	
+
 	async function writeFood() {
 		food.setDescription(description);
 		food.setName(name);
@@ -75,14 +75,14 @@
 			await writeFood();
 			await readFood();
 		}
-		edit = !edit
+		edit = !edit;
 	}
 
 	async function cancelEdit() {
 		edit = false;
 		await readFood();
 		if (food == null) {
-			goto('../')
+			goto('../');
 		}
 	}
 
@@ -93,7 +93,7 @@
 			await writeFood();
 			await readFood();
 		} else {
-			alert("Could not add ingredient!");
+			alert('Could not add ingredient!');
 		}
 	}
 
@@ -105,7 +105,7 @@
 
 	async function deleteButtonOnClick() {
 		await FoodRegister.remove(food);
-		goto('../')
+		goto('../');
 	}
 
 	async function onKeyPress(event) {
@@ -118,32 +118,32 @@
 	}
 </script>
 
-<Button onClick={() => goto('../')} text={'Home'}/>
+<Button onClick={() => goto('../')} text={'Home'} />
 
 {#if food === undefined}
 	<h2>Loading..</h2>
 {:else}
 	{#if user && user.uid === food.getAuthor()}
-		<Button onClick={editButtonOnClick} text={edit? 'Save' : 'Edit'}/>
+		<Button onClick={editButtonOnClick} text={edit ? 'Save' : 'Edit'} />
 	{/if}
 	{#if edit}
 		<ButtonWithDialog
-			text={"Cancel"}
+			text={'Cancel'}
 			onClick={cancelEdit}
-			dialogText={"Are you sure you want to discard your changes?"}
+			dialogText={'Are you sure you want to discard your changes?'}
 		/>
 		<ButtonWithDialog
-			text={"Delete " + food.getName()}
+			text={'Delete ' + food.getName()}
 			onClick={deleteButtonOnClick}
 			dialogText={`Are you sure you want to delete ${food.getName()}?`}
 		/>
 		<h3>Name</h3>
 		<div>
-			<TextField bind:value={name}/>
+			<TextField bind:value={name} />
 		</div>
 		<h3>Description</h3>
 		<div>
-			<TextArea bind:value={description}/>
+			<TextArea bind:value={description} />
 		</div>
 		<h3>Tags</h3>
 		{#each [...FoodTagLabels] as [tag, text]}
@@ -155,38 +155,37 @@
 			/>
 		{/each}
 		<h3>Ingredients</h3>
-		<TextField bind:value={searchString} {onKeyPress} style={'width: 50%'}/>
-		<br>
+		<TextField bind:value={searchString} {onKeyPress} style={'width: 50%'} />
+		<br />
 		{#each searchResults as ingredient}
 			<div on:click={() => addIngredient(ingredient)}>
-				<FoodItem food={ingredient}></FoodItem>
+				<FoodItem food={ingredient} />
 			</div>
 		{/each}
 		{#each ingredients as ingredient}
 			<div on:click={() => gotoFood(ingredient)}>
-				<FoodItem food={ingredient} onDestroy={() => removeIngredient(ingredient)}></FoodItem>
+				<FoodItem food={ingredient} onDestroy={() => removeIngredient(ingredient)} />
 			</div>
 		{/each}
 	{:else}
 		<h1>{food.getName()}</h1>
 		{#each food.getTagNames() as text}
-			<Tag {text}/>
+			<Tag {text} />
 		{/each}
-		<p>{food.getTime().split(" ")[0]}</p>
+		<p>{food.getTime().split(' ')[0]}</p>
 		<p>{food.getDescription()}</p>
 
-		
 		{#if ingredients.length}
 			<h3>Ingredients</h3>
 			{#each ingredients as ingredient}
-			<div on:click={() => gotoFood(ingredient)}>
-				<FoodItem food={ingredient}></FoodItem>
-			</div>
+				<div on:click={() => gotoFood(ingredient)}>
+					<FoodItem food={ingredient} />
+				</div>
 			{/each}
 		{/if}
 
 		{#if food.getNutrition()}
-			<NutritionDiagram nutrition={food.getNutrition()}/>
+			<NutritionDiagram nutrition={food.getNutrition()} />
 		{/if}
 	{/if}
 {/if}

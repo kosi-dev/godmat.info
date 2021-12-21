@@ -11,13 +11,13 @@
 	import TextField from '$lib/ui/TextField.svelte';
 	import SwitchButton from '$lib/ui/SwitchButton.svelte';
 
-	let foods: Array<Food> = []
+	let foods: Array<Food> = [];
 	let user = null;
-	let searchString: string = "";
+	let searchString: string = '';
 	let selectedTag: FoodTag = null;
 
 	async function addMatvareTabellen() {
-		await fetch("/matvaretabellen.json")
+		await fetch('/matvaretabellen.json')
 			.then((response) => response.json())
 			.then(async (json) => {
 				for (let foodData of json.foods) {
@@ -43,13 +43,13 @@
 	async function signInButtonOnClick() {
 		await signIn();
 	}
-	
+
 	async function signOutButtonOnClick() {
 		auth.signOut();
 	}
 
 	async function createFoodButtonOnClick() {
-		goto('/food/' + nanoid(12)) // TODO: Might not be okay
+		goto('/food/' + nanoid(12)); // TODO: Might not be okay
 	}
 
 	async function updateFoods(searchString: string, selectedTag: FoodTag) {
@@ -66,29 +66,28 @@
 	}
 
 	function onKeyPress(event) {
-		if (event.keyCode === 13){
+		if (event.keyCode === 13) {
 			updateFoods(searchString, selectedTag);
 			(document.activeElement as HTMLElement).blur();
 		}
 	}
 </script>
 
-
 <h1>godmat.info</h1>
 <p>- God info om god mat!</p>
 {#if !user}
-	<Button onClick={signInButtonOnClick} text={'Sign in'}/>
+	<Button onClick={signInButtonOnClick} text={'Sign in'} />
 {:else}
 	<p>Signed in as {user.displayName}</p>
-	<Button onClick={signOutButtonOnClick} text={'Sign out'}/>
-	<Button onClick={createFoodButtonOnClick} text={'+ Create new food'}/>
+	<Button onClick={signOutButtonOnClick} text={'Sign out'} />
+	<Button onClick={createFoodButtonOnClick} text={'+ Create new food'} />
 {/if}
-<br>
-<br>
+<br />
+<br />
 <h3>Search</h3>
-<TextField bind:value={searchString} {onKeyPress} style={'width: 50%'}></TextField>
-<br>
-<br>
+<TextField bind:value={searchString} {onKeyPress} style={'width: 50%'} />
+<br />
+<br />
 <details>
 	<summary>Filter by tag</summary>
 	{#each [...FoodTagLabels] as [tag, text]}
@@ -100,9 +99,9 @@
 		/>
 	{/each}
 </details>
-<br>
+<br />
 {#each foods as food}
 	<div on:click={() => goto('/food/' + food.getId())}>
-		<FoodItem {food}></FoodItem>
+		<FoodItem {food} />
 	</div>
 {/each}

@@ -3,14 +3,14 @@
 	import { onMount } from 'svelte';
 	import Button from './Button.svelte';
 	import Tag from './Tag.svelte';
-	
+
 	export let food: Food;
 	export let onDestroy: Function = undefined;
 
 	// Some variables are explicit because their getters are async.
 	let ingredients: Array<Food> = [];
 	let price: number = 0;
-	
+
 	async function updateAttributes(food) {
 		if (food != null) {
 			ingredients = await food.getIngredients();
@@ -25,11 +25,12 @@
 	{#if food}
 		<h3>{food.getName()}</h3>
 		{#each food.getTagNames() as text}
-			<Tag {text}/>
+			<Tag {text} />
 		{/each}
 		<p>
 			{#if ingredients.length}
-				<span>Ingredienser:
+				<span
+					>Ingredienser:
 					{#each ingredients as ingredient}
 						<span>{ingredient.getName() + ', '}</span>
 					{/each}
@@ -37,7 +38,7 @@
 			{/if}
 		</p>
 		{#if onDestroy !== undefined}
-			<Button text={"Delete"} onClick={onDestroy}></Button>
+			<Button text={'Delete'} onClick={onDestroy} />
 		{/if}
 	{:else}
 		<h3>Undefined food!</h3>
@@ -48,12 +49,12 @@
 	div {
 		margin: 8px 0px;
 		background-color: white;
-        border-radius: 16px;
+		border-radius: 16px;
 		border-width: 3px;
 		border-style: solid;
 		border-color: white;
-        padding: 4px 16px;
-        box-shadow: 0px 16px 32px 0px rgba(128, 128, 128, 0.5);
+		padding: 4px 16px;
+		box-shadow: 0px 16px 32px 0px rgba(128, 128, 128, 0.5);
 	}
 	div:hover {
 		border-color: lightgray;
