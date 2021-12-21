@@ -9,6 +9,7 @@
 	import Button from '$lib/ui/Button.svelte';
 	import TextField from '$lib/ui/TextField.svelte';
 	import SwitchButton from '$lib/ui/SwitchButton.svelte';
+	import { nanoid } from 'nanoid';
 
 	let foods: Array<Food> = []
 	let user = auth.currentUser;
@@ -20,8 +21,8 @@
 			.then((response) => response.json())
 			.then(async (json) => {
 				for (let foodData of json.foods) {
-					let food: Food = new Food(foodData.name, user.uid, "", 0, foodData.nutrition);
-					food.addTag(Math.floor(foodData.groupId));
+					let food: Food = new Food(foodData.getName(), user.uid, foodData.slug, foodData.nutrition);
+					food.addTag(foodData.groupId);
 					// await FoodRegister.put(food);
 				}
 			})
@@ -29,6 +30,7 @@
 	}
 
 	onMount(async () => {
+		await FoodRegister.init();
 		foods = await FoodRegister.getAll();
 		// addMatvareTabellen();
 	});
@@ -46,9 +48,7 @@
 	}
 
 	async function createFoodButtonOnClick() {
-		let food: Food = new Food("Untitled", user.uid);
-		await FoodRegister.put(food);
-		goto('/food/' + food.getId())
+		goto('/food/' + nanoid(12)) // TODO: Might not be okay
 	}
 
 	async function updateFoods(searchString: string, selectedTag: FoodTag) {

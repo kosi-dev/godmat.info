@@ -1,14 +1,23 @@
-
 import { db } from '../firebase/firebase';
-import { collection, query, getDocs, setDoc, getDoc, doc, deleteDoc, where, limit, updateDoc, orderBy, Query } from 'firebase/firestore';
+import { collection, query, getDocs, setDoc, getDoc, doc, deleteDoc, where, limit, updateDoc, orderBy, Query, deleteField, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { Food, FoodTag } from './food';
 
 export { FoodRegister }
 
-let max_count: number = 5;
 
 namespace FoodRegister {
-    const keyRef = doc(db, "keys", "keys");
+    const max_count: number = 5;
+    const nameRef = doc(db, "ext", "names");
+
+    export async function init() {
+        for (let ref of [nameRef]) {
+            getDoc(ref).then((docSnap) => {
+                if (!docSnap.exists()) {
+                    setDoc(ref, {});
+                }
+            })
+        }
+    }
 
     /**
      * Puts `food` into the database, with `food.getId()` as key.
@@ -19,9 +28,9 @@ namespace FoodRegister {
         const ref = doc(db, "foodRegister", food.getId());
         await setDoc(ref, Object.assign(new Object(), food));
         let data = {};
-        data[food.getName()] = food.getId();
-        await updateDoc(keyRef, data);
-        console.log(`[DB] Wrote ${food.name}`);
+        data[food.getId()] = food.getName();
+        await updateDoc(nameRef, data);
+        console.log(`[DB] Wrote ${food.getName()}`);
     }
 
     /**
@@ -33,12 +42,18 @@ namespace FoodRegister {
      */
     export async function remove(food: Food): Promise<boolean> {
         if (food.hasParents()) {
-            console.warn(`[DB] Could not delete ${food.name}`);
+            console.warn(`[DB] Could not delete ${food.getName()}`);
             return false;
+        }
+        for (let ingredient of await food.getIngredients()) {
+            ingredient.removeParent(food);
         }
         const ref = doc(db, "foodRegister", food.getId());
         await deleteDoc(ref);
-        console.log(`[DB] Deleted ${food.name}`);
+        let data = {};
+        data[food.getId()] = deleteField();
+        await updateDoc(nameRef, data);
+        console.log(`[DB] Deleted ${food.getName()}`);
         return true;
     }
 
@@ -53,7 +68,7 @@ namespace FoodRegister {
         const docSnap = await getDoc(ref);
         if (docSnap.exists()) {
             const food = Object.assign(new Food(), docSnap.data());
-            console.log(`[DB] Read ${food.name}`);
+            console.log(`[DB] Read ${food.getName()}`);
             return food;
         } else {
             console.log(`[DB] Could not read ${id}!`);
@@ -62,9 +77,9 @@ namespace FoodRegister {
     }
 
     /**
-     * Gets all foods from the database.
-     * **This is probably not scalable.**
+     * Gets foods from the database.
      * 
+     * @param tag the tag to filter on
      * @returns array of all foods
      */
     export async function getAll(tag: FoodTag = null): Promise<Array<Food>> {
@@ -87,21 +102,23 @@ namespace FoodRegister {
      * Gets all foods whose names include `searchString`.
      * 
      * @param searchString the string to search for
+     * @param tag the tag to filter on
      * @returns array of matching foods
      */
     export async function getMatches(searchString: string, tag: FoodTag = null):
             Promise<Array<Food>> {
-        const docSnap = await getDoc(keyRef);
+        const docSnap = await getDoc(nameRef);
         if (!docSnap.exists()) {
-            console.log(`[DB] Could not read from keys!`);
+            console.log(`[DB] Could not read from ext/names!`);
             return null;
         }
         const data: object = docSnap.data();
         const foods: Array<Food> = [];
         let count = 0;
         for (let key of Object.keys(data)) {
-            if (key.toLowerCase().includes(searchString.toLowerCase())) {
-                let food: Food = await get(data[key]);
+            let name = data[key];
+            if (name.toLowerCase().includes(searchString.toLowerCase())) {
+                let food: Food = await get(key);
                 if (tag === null || food.hasTag(tag)) {
                     foods.push(food);
                     count += 1;
@@ -113,5 +130,16 @@ namespace FoodRegister {
         }
         console.log(`[DB] Read matches of ${searchString}!`);
         return foods;
+    }
+
+    export async function writeParents(child: Food) {
+        const ref = doc(db, "foodRegister", child.getId());
+        await updateDoc(ref, {_parents: child.getParentIds()});
+    }
+
+    export async function hasKey(key: string): Promise<boolean> {
+        const ref = doc(db, "foodRegister", key);
+        const docSnap = await getDoc(ref);
+        return docSnap.exists();
     }
 }

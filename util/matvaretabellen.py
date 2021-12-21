@@ -25,6 +25,8 @@ for i, food in enumerate(foods):
         newFood[key] = food[key]
         del food[key]
 
+    newFood["groupId"] = int(newFood["groupId"][0])
+
     illegal = ("~", "*", "/", "[", "]")
     newFood["name"] = "".join([c for c in newFood["name"] if not c in illegal])
     if newFood["name"].endswith("."):
@@ -52,6 +54,7 @@ for i, food in enumerate(foods):
         except:
             pass
     
+
 print("Writing to file..")
 with open("static/matvaretabellen.json", "w") as file:
     json.dump(data, file, indent=2)

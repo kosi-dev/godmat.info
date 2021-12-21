@@ -11,7 +11,6 @@
 </script>
 
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { Food, FoodTagLabels } from '$lib/core/food';
 	import { FoodRegister } from '$lib/core/food-register';
@@ -25,41 +24,60 @@
 	import TextField from '$lib/ui/TextField.svelte';
 	
 	let edit: boolean = false;
+	let user = auth.currentUser;
 	let food: Food;
 	let ingredients: Array<Food> = [];
-	let user = auth.currentUser;
-	let searchString: string = "";
+	let name: string = '';
+	let description: string = '';
+	let searchString: string = '';
 	let searchResults: Array<Food> = [];
 
 	onAuthStateChanged(auth, async (u) => {
 		user = u;
-	});
-
-	onMount(async () => {
-		await readFood();
+		if (user) {
+			await FoodRegister.init();
+			await readFood();
+			if (food == null) {
+				food = new Food("Untitled", user.uid, slug);
+				edit = true;
+			}
+		}
 	});
 
 	async function readFood() {
 		food = await FoodRegister.get(slug);
-		ingredients = await food.getIngredients();
+		if (food != null) {
+			ingredients = await food.getIngredients();
+			name = food.getName();
+			description = food.getDescription();
+		}
 	}
 	
-	async function gotoIngredient(ingredient: Food) {
-		goto('/food/' + ingredient.getId()).then(async () => {
+	async function writeFood() {
+		food.setDescription(description);
+		food.setName(name);
+		await FoodRegister.put(food);
+	}
+
+	async function gotoFood(food: Food) {
+		goto('/food/' + food.getId()).then(async () => {
 			readFood();
 		});
 	}
 
 	async function editButtonOnClick() {
 		if (edit) {
-			await FoodRegister.put(food);
+			await writeFood();
 		}
 		edit = !edit
 	}
 
 	async function cancelEdit() {
 		edit = false;
-		readFood();
+		await readFood();
+		if (food == null) {
+			goto('../')
+		}
 	}
 
 	async function addIngredient(ingredient: Food) {
@@ -111,11 +129,11 @@
 		/>
 		<h3>Name</h3>
 		<div>
-			<TextField bind:value={food.name}/>
+			<TextField bind:value={name}/>
 		</div>
 		<h3>Description</h3>
 		<div>
-			<TextField bind:value={food.description}/>
+			<TextField bind:value={description}/>
 		</div>
 		<h3>Tags</h3>
 		{#each [...FoodTagLabels] as [tag, text]}
@@ -135,7 +153,7 @@
 			</div>
 		{/each}
 		{#each ingredients as ingredient}
-			<div on:click={() => gotoIngredient(ingredient)}>
+			<div on:click={() => gotoFood(ingredient)}>
 				<FoodItem food={ingredient} onDestroy={() => removeIngredient(ingredient)}></FoodItem>
 			</div>
 		{/each}
@@ -148,7 +166,7 @@
 		
 		<h3>Ingredients</h3>
 		{#each ingredients as ingredient}
-			<div on:click={() => gotoIngredient(ingredient)}>
+			<div on:click={() => gotoFood(ingredient)}>
 				<FoodItem food={ingredient}></FoodItem>
 			</div>
 		{/each}

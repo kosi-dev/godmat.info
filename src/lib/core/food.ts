@@ -1,6 +1,6 @@
 import { FoodRegister } from './food-register';
-import { v4 as uuidv4 } from 'uuid';
 import dateFormat from 'dateformat';
+import { nanoid } from 'nanoid';
 
 export { Food, FoodTag, FoodTagLabels }
 
@@ -52,24 +52,22 @@ function getTime() {
 	return dateFormat(new Date(), "yyyy.mm.dd hh:MM:ss");
 }
 
-/**
- * Does never write anything to the database.
- */
 class Food {
-	public name: string;
-	public description: string;
-	private _id: string;
-	private _basePrice: number;
+	public _name: string = '';
+	public _description: string = '';
+	private _id: string = '';
+	private _basePrice: number = 0;
 	private _tags: Array<FoodTag> = [];
 	private _ingredients: Object = {};
 	private _parents: Array<string> = [];
 	private _time: string = getTime();
-	private _author: string;
-	private _nutrition: Object;
+	private _author: string = '';
+	private _nutrition: Object = {};
+	private _likes: Array<string> = [];
 
 	/**
-	 * Constructs a Food instance.
-	 * A unique `_id` is generated.
+	 * Constructs a Food instance **without an id**.
+	 * 
 	 * @param name food name
 	 * @param basePrice food base price
 	 * @param description food description
@@ -77,19 +75,16 @@ class Food {
 	public constructor(
 			name: string = 'Untitled Food',
 			author: string = '',
-			description: string = '',
-			basePrice: number = 0,
+			id = '',
 			nutrition: Object = {}) {
-		this.name = name;
-		this.description = description;
+		this._name = name;
 		this._author = author;
-		this._basePrice = basePrice;
 		this._nutrition = nutrition;
-		this._id = this.generateId();
+		this._id = id.length == 0 ? nanoid(12) : id;
 	}
 
 	public getName(): string {
-		return this.name;
+		return this._name;
 	}
 	
 	public getId(): string {
@@ -124,15 +119,15 @@ class Food {
 	}
 
 	public getDescription(): string {
-		return this.description;
+		return this._description;
+	}
+
+	public setDescription(description: string) {
+		this._description = description;
 	}
 
 	public setName(name: string) {
-		this.name = name;
-	}
-
-	private generateId(): string {
-		return uuidv4();
+		this._name = name;
 	}
 
 	/**
@@ -207,14 +202,20 @@ class Food {
 		return this._basePrice;
 	}
 
+	public getParentIds(): any {
+        return [...this._parents];
+    }
+
 	public addParent(parent: Food) {
 		this._parents.push(parent.getId());
+		FoodRegister.writeParents(this);
 	}
 
 	public removeParent(parent: Food) {
 		const index = this._parents.indexOf(parent.getId());
 		if (index != -1) {
 			this._parents.splice(index, 1);
+			FoodRegister.writeParents(this);
 		}
 	}
 
