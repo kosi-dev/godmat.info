@@ -81,6 +81,8 @@
 	}
 
 	async function addIngredient(ingredient: Food) {
+		searchString = '';
+		searchResults = [];
 		if (await food.addIngredient(ingredient)) {
 			await FoodRegister.put(food);
 			await readFood();
@@ -105,6 +107,7 @@
 			searchResults = [];
 		} else if (event.keyCode === 13) {
 			searchResults = await FoodRegister.getMatches(searchString);
+			(document.activeElement as HTMLElement).blur();
 		}
 	}
 

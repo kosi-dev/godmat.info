@@ -51,7 +51,7 @@
 
 	async function updateFoods(searchString: string, selectedTag: FoodTag) {
 		if (searchString.length > 1) {
-			foods = await FoodRegister.getMatches(searchString, selectedTag);
+			foods = await FoodRegister.getMatches(searchString); //, selectedTag);
 		} else {
 			foods = await FoodRegister.getAll(selectedTag);
 		}
@@ -65,6 +65,7 @@
 	function onKeyPress(event) {
 		if (event.keyCode === 13){
 			updateFoods(searchString, selectedTag);
+			(document.activeElement as HTMLElement).blur();
 		}
 	}
 </script>
