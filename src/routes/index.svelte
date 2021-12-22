@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	import { app, signIn, auth } from '$lib/firebase/firebase';
-	import { onAuthStateChanged } from '@firebase/auth';
+	import { signIn, firebaseConfig } from '$lib/firebase/firebase';
 	import { Food, FoodTag, FoodTagLabels } from '$lib/core/food';
 	import { FoodRegister } from '$lib/core/food-register';
 	import { nanoid } from 'nanoid';
@@ -10,11 +9,15 @@
 	import FoodItem from '$lib/ui/FoodItem.svelte';
 	import TextField from '$lib/ui/TextField.svelte';
 	import SwitchButton from '$lib/ui/SwitchButton.svelte';
+	import { getAuth, onAuthStateChanged } from '@firebase/auth';
+	import { getApp, getApps, initializeApp } from '@firebase/app';
 
 	let foods: Array<Food> = [];
 	let user = null;
 	let searchString: string = '';
 	let selectedTag: FoodTag = null;
+	let app;
+	let auth;
 
 	async function addMatvareTabellen() {
 		await fetch('/matvaretabellen.json')
@@ -30,7 +33,8 @@
 	}
 
 	onMount(async () => {
-		await FoodRegister.init();
+		app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+		auth = getAuth();
 		foods = await FoodRegister.getAll();
 		onAuthStateChanged(auth, async (u) => {
 			user = u;
@@ -41,7 +45,7 @@
 	});
 
 	async function signInButtonOnClick() {
-		await signIn();
+		await signIn(auth);
 	}
 
 	async function signOutButtonOnClick() {

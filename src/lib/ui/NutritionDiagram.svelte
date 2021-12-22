@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import Recommended from './recommended.json';
   	import Chart from 'svelte-frappe-charts';
 
