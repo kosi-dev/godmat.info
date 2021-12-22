@@ -13,18 +13,14 @@ import {
 	orderBy,
 	Query,
 	deleteField
-} from '@firebase/firestore';
-import { getApp, getApps, initializeApp } from '@firebase/app';
-import { firebaseConfig } from '../firebase/firebase';
-import { getFirestore } from '@firebase/firestore';
+} from 'firebase/firestore';
+import { db } from '../firebase/firebase';
 import { Food, FoodTag } from './food';
 
 export { FoodRegister };
 
 namespace FoodRegister {
 	const max_count: number = 5;
-	const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-	const db = getFirestore();
 
 	export async function init() {
 		const nameRef = doc(db, 'ext', 'names');

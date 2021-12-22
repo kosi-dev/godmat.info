@@ -15,7 +15,7 @@
 	import { goto } from '$app/navigation';
 	import { Food, FoodTagLabels } from '$lib/core/food';
 	import { FoodRegister } from '$lib/core/food-register';
-	import { firebaseConfig } from '$lib/firebase/firebase';
+	import { auth } from '$lib/firebase/firebase';
 	import Button from '$lib/ui/Button.svelte';
 	import FoodItem from '$lib/ui/FoodItem.svelte';
 	import ButtonWithDialog from '$lib/ui/ButtonWithDialog.svelte';
@@ -23,13 +23,9 @@
 	import Tag from '$lib/ui/Tag.svelte';
 	import TextField from '$lib/ui/TextField.svelte';
 	import TextArea from '$lib/ui/TextArea.svelte';
-	import { getAuth, onAuthStateChanged } from '@firebase/auth';
-	import { getApp, getApps, initializeApp } from '@firebase/app';
+	import { onAuthStateChanged } from 'firebase/auth';
 	import NutritionDiagram from '$lib/ui/NutritionDiagram.svelte';
 
-	let app;
-	let auth;
-	
 	let edit: boolean = false;
 	let user = null;
 	let food: Food;
@@ -40,8 +36,6 @@
 	let searchResults: Array<Food> = [];
 
 	onMount(async () => {
-		app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-		auth = getAuth();
 		await readFood();
 		onAuthStateChanged(auth, async (u) => {
 			user = u;
