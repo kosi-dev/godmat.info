@@ -105,7 +105,10 @@
 	}
 
 	async function deleteButtonOnClick() {
-		await FoodRegister.remove(food);
+		await readFood();
+		if (food != null) {
+			await FoodRegister.remove(food);
+		}
 		goto('../');
 	}
 
