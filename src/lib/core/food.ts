@@ -137,7 +137,7 @@ class Food {
 	 * @param food the ingredient to add
 	 * @returns `true` if `food` was added, `false` otherwise
 	 */
-	public async addIngredient(ingredient: Food, weight: number = 0): Promise<boolean> {
+	public async addIngredient(ingredient: Food, weight: number = 100): Promise<boolean> {
 		if (await ingredient.hasIngredient(this)) {
 			console.error('Cyclic ingredients are not allowed!');
 			return false;
@@ -239,7 +239,33 @@ class Food {
 		return this._time;
 	}
 
-	public getNutrition() {
-		return this._nutrition; // TODO: Count ingredients.
+	public async getNutrition(): Promise<Object> {
+		if (Object.keys(this._nutrition).length !== 0) {
+			return this._nutrition;
+		} else {
+			let ingredients = await this.getIngredients();
+			if (ingredients.length) {
+				let nutrition = {}
+				let weight: number = 0;
+				for (let ingredient of ingredients) {
+					weight += this._ingredients[ingredient.getId()];
+					let ingredientNutrition: Object = await ingredient.getNutrition();
+					Object.keys(ingredientNutrition).forEach(key => {
+						if (nutrition.hasOwnProperty(key)) {
+							nutrition[key] += ingredientNutrition[key];
+						} else {
+							nutrition[key] = ingredientNutrition[key];
+						}
+					});
+				}
+				if (weight !== 0) {
+					for (let key of Object.keys(this._nutrition)) {
+						nutrition[key] *= 100 / weight;
+					}
+					return nutrition;
+				}
+			}
+			return null;
+		}
 	}
 }

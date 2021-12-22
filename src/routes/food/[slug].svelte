@@ -28,8 +28,9 @@
 
 	let edit: boolean = false;
 	let user = null;
-	let food: Food;
+	let food: Food = undefined;
 	let ingredients: Array<Food> = [];
+	let nutrition = null;
 	let name: string = '';
 	let description: string = '';
 	let searchString: string = '';
@@ -50,8 +51,9 @@
 
 	async function readFood() {
 		food = await FoodRegister.get(slug);
-		if (food != null) {
+		if (food !== null) {
 			ingredients = await food.getIngredients();
+			nutrition = await food.getNutrition();
 			name = food.getName();
 			description = food.getDescription();
 		}
@@ -121,6 +123,8 @@
 
 {#if food === undefined}
 	<h2>Loading..</h2>
+{:else if food === null}
+	<h2>Undefined food!</h2>
 {:else}
 	{#if user && user.uid === food.getAuthor()}
 		<Button onClick={editButtonOnClick} text={edit ? 'Save' : 'Edit'} />
@@ -182,9 +186,9 @@
 				</div>
 			{/each}
 		{/if}
-
-		{#if food.getNutrition()}
-			<NutritionDiagram nutrition={food.getNutrition()} />
+		
+		{#if nutrition !== null}
+			<NutritionDiagram {nutrition} />
 		{/if}
 	{/if}
 {/if}
