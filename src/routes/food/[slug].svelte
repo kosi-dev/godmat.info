@@ -166,9 +166,13 @@
 			</div>
 		{/each}
 		{#each ingredients as ingredient}
-			<div on:click={() => gotoFood(ingredient)}>
-				<FoodItem food={ingredient} onDestroy={() => removeIngredient(ingredient)} />
-			</div>
+			<FoodItem
+				food={ingredient}
+				onDestroy={() => removeIngredient(ingredient)}
+				onChangeWeight={(weight) =>
+				food.setIngredientWeight(ingredient, weight)}
+				weight={food.getIngredientWeight(ingredient)}
+			/>
 		{/each}
 	{:else}
 		<h1>{food.getName()}</h1>
@@ -182,7 +186,10 @@
 			<h3>Ingredients</h3>
 			{#each ingredients as ingredient}
 				<div on:click={() => gotoFood(ingredient)}>
-					<FoodItem food={ingredient} />
+					<FoodItem
+						food={ingredient}
+						weight={food.getIngredientWeight(ingredient)}
+					/>
 				</div>
 			{/each}
 		{/if}

@@ -6,6 +6,7 @@
 
 	let selectedGender = 'Male';
 	let selectedAge = '18-30 y';
+	let selectedWeight = 100;
 	let donutData = {
 		labels: ['Karbohydrat', 'Protein', 'Fett'],
 		datasets: [{ values: [
@@ -17,18 +18,20 @@
 	$: vitaminsData = customData(
 		['Vit A', 'Vit D', 'Vit E', 'Vit B1', 'Vit B2', 'Vit B3', 'Vit B6', 'Folat', 'Vit C'],
 		selectedGender,
-		selectedAge
+		selectedAge,
+		selectedWeight
 	);
 	$: mineralsData = customData(
 		['Ca', 'P', 'K', 'Mg', 'Fe', 'Zn', 'Cu', 'I', 'Se'],
 		selectedGender,
-		selectedAge
+		selectedAge,
+		selectedWeight
 	);
 
-	function customData(keys, selectedGender, selectedAge) {
+	function customData(keys, selectedGender, selectedAge, selectedWeight) {
 		let data = [];
 		for (let key of keys) {
-			data.push((nutrition[key] / Recommended[key][selectedGender][selectedAge]).toFixed(2));
+			data.push((nutrition[key] / Recommended[key][selectedGender][selectedAge] * selectedWeight / 100).toFixed(2));
 		}
 		return {
 			labels: keys,
@@ -38,11 +41,19 @@
 </script>
 
 {#if nutrition && nutrition != {}}
-	<h2>Næringsinnhold, per 100 g</h2>
+	<h2>Næringsinnhold, per
+		<select bind:value={selectedWeight}>
+			{#each [50, 100, 200, 500, 1000] as weight}
+				<option value={weight}>
+					{weight}
+				</option>
+			{/each}
+		</select> gram.
+	</h2>
 
 	<h3>Energi</h3>
 
-	<p>{nutrition['Energi2']} kcal, med følgende fordeling:</p>
+	<p>{nutrition['Energi2'] * selectedWeight / 100} kcal, med følgende fordeling:</p>
 	{#if donutData}
 		<Chart data={donutData} type="donut" />
 	{/if}

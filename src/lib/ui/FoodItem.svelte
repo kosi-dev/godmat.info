@@ -3,9 +3,12 @@
 	import { onMount } from 'svelte';
 	import Button from './Button.svelte';
 	import Tag from './Tag.svelte';
+	import TextField from './TextField.svelte';
 
 	export let food: Food;
 	export let onDestroy: Function = undefined;
+	export let onChangeWeight: (weight: number) => void = undefined;
+	export let weight: number = undefined;
 
 	// Some variables are explicit because their getters are async.
 	let ingredients: Array<Food> = [];
@@ -19,6 +22,7 @@
 	}
 
 	$: updateAttributes(food);
+	$: if (onChangeWeight !== undefined) { onChangeWeight(weight) };
 </script>
 
 <div>
@@ -39,6 +43,14 @@
 		</p>
 		{#if onDestroy !== undefined}
 			<Button text={'Delete'} onClick={onDestroy} />
+		{/if}
+		{#if weight !== undefined}
+			{#if onChangeWeight !== undefined}
+				<span>Weight: </span>
+				<TextField bind:value={weight} type={"number"}></TextField>
+			{:else} 
+				<span>Weight: {weight}</span>
+			{/if}
 		{/if}
 	{:else}
 		<h3>Undefined food!</h3>

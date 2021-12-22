@@ -151,6 +151,10 @@ class Food {
 		this._ingredients[ingredient.getId()] = weight;
 	}
 
+	public getIngredientWeight(ingredient: Food): number {
+		return this._ingredients[ingredient.getId()];
+	}
+
 	/**
 	 * Removes `food` as an ingredient to this food.
 	 *
@@ -248,19 +252,21 @@ class Food {
 				let nutrition = {}
 				let weight: number = 0;
 				for (let ingredient of ingredients) {
-					weight += this._ingredients[ingredient.getId()];
-					let ingredientNutrition: Object = await ingredient.getNutrition();
+					let getIngredientWeight = this.getIngredientWeight(ingredient);
+					weight += getIngredientWeight;
+					let ingredientNutrition = await ingredient.getNutrition();
 					Object.keys(ingredientNutrition).forEach(key => {
 						if (nutrition.hasOwnProperty(key)) {
-							nutrition[key] += ingredientNutrition[key];
+							nutrition[key] += ingredientNutrition[key] * getIngredientWeight;
 						} else {
-							nutrition[key] = ingredientNutrition[key];
+							nutrition[key] = ingredientNutrition[key] * getIngredientWeight;
 						}
 					});
 				}
 				if (weight !== 0) {
-					for (let key of Object.keys(this._nutrition)) {
-						nutrition[key] *= 100 / weight;
+					console.log(weight);
+					for (let key of Object.keys(nutrition)) {
+						nutrition[key] = (nutrition[key] / weight).toFixed(2);
 					}
 					return nutrition;
 				}

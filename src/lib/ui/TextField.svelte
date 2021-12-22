@@ -1,10 +1,15 @@
 <script lang="ts">
-	export let value: string;
+	export let value;
 	export let style: string = '';
 	export let onKeyPress = undefined;
+	export let type: string = "text";
 </script>
 
-<input type="text" bind:value on:keyup={onKeyPress} {style} />
+{#if type === "text"}
+	<input type="text" bind:value on:keyup={onKeyPress} {style} on:click|stopPropagation/>
+{:else if type === "number"}
+	<input type="number" bind:value on:keyup={onKeyPress} {style} on:click|stopPropagation/>
+{/if}
 
 <style>
 	input {
