@@ -98,25 +98,22 @@ namespace FoodRegister {
 	 * @param tag the tag to filter on
 	 * @returns array of all foods
 	 */
-	export async function getAll(tag: FoodTag = null): Promise<Array<Food>> {
-		let q: Query;
-		if (tag !== null) {
-			q = query(
+	export async function getAll(fallback, tag: FoodTag = null) {
+		let q: Query = (tag !== null)
+			? query(
 				collection(db, 'foodRegister'),
 				where('_tags', 'array-contains', tag),
 				orderBy('_time', 'desc'),
-				limit(max_count)
-			); //TODO: paginate results
-		} else {
-			q = query(collection(db, 'foodRegister'), orderBy('_time', 'desc'), limit(max_count)); //TODO: paginate results
-		}
+				limit(max_count))
+			: query(
+				collection(db, 'foodRegister'),
+				orderBy('_time', 'desc'),
+				limit(max_count));
 		const querySnapshot = await getDocs(q);
-		const foods: Array<Food> = [];
 		querySnapshot.forEach((docSnap) => {
-			foods.push(Object.assign(new Food(), docSnap.data()));
+			fallback(Object.assign(new Food(), docSnap.data()));
 		});
 		console.log(`[DB] Read all!`);
-		return foods;
 	}
 
 	/**
@@ -128,6 +125,7 @@ namespace FoodRegister {
 	 */
 	export async function getMatches(
 		searchString: string,
+		fallback,
 		tag: FoodTag = null
 	): Promise<Array<Food>> {
 		const nameRef = doc(db, 'ext', 'names');
@@ -137,14 +135,13 @@ namespace FoodRegister {
 			return null;
 		}
 		const data: object = docSnap.data();
-		const foods: Array<Food> = [];
 		let count = 0;
 		for (let key of Object.keys(data)) {
 			let name = data[key];
 			if (name.toLowerCase().includes(searchString.toLowerCase())) {
 				let food: Food = await get(key);
 				if (tag === null || food.hasTag(tag)) {
-					foods.push(food);
+					fallback(food);
 					count += 1;
 					if (count == max_count) {
 						break;
@@ -153,7 +150,6 @@ namespace FoodRegister {
 			}
 		}
 		console.log(`[DB] Read matches of ${searchString}!`);
-		return foods;
 	}
 
 	export async function writeParents(child: Food) {

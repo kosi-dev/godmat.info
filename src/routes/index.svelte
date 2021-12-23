@@ -16,26 +16,10 @@
 	let searchString: string = '';
 	let selectedTag: FoodTag = null;
 
-	async function addMatvareTabellen() {
-		await fetch('/matvaretabellen.json')
-			.then((response) => response.json())
-			.then(async (json) => {
-				for (let foodData of json.foods) {
-					let food: Food = new Food(foodData.name, user.uid, foodData.slug, foodData.nutrition);
-					food.addTag(foodData.groupId);
-					await FoodRegister.put(food);
-				}
-			})
-			.catch((error) => console.error(error));
-	}
-
 	onMount(async () => {
-		foods = await FoodRegister.getAll();
+		FoodRegister.getAll(addFood);
 		onAuthStateChanged(auth, async (u) => {
 			user = u;
-			if (user) {
-				// await addMatvareTabellen();
-			}
 		});
 	});
 
@@ -51,11 +35,17 @@
 		goto('/food/' + nanoid(12)); // TODO: Might not be okay
 	}
 
+	function addFood(food) {
+		foods.push(food);
+		foods = foods;
+	}
+
 	async function updateFoods(searchString: string, selectedTag: FoodTag) {
+		foods = [];
 		if (searchString.length > 1) {
-			foods = await FoodRegister.getMatches(searchString); //, selectedTag);
+			FoodRegister.getMatches(searchString, addFood);
 		} else {
-			foods = await FoodRegister.getAll(selectedTag);
+			FoodRegister.getAll(addFood, selectedTag);
 		}
 	}
 
