@@ -81,6 +81,7 @@
 	async function editButtonOnClick() {
 		if (edit) {
 			await writeFood();
+			nutrition = await food.getNutrition();
 		}
 		edit = !edit;
 	}
