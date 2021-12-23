@@ -73,9 +73,9 @@ namespace FoodRegister {
 			console.warn(`[DB] Could not delete ${food.getName()}`);
 			return false;
 		}
-		for (let ingredient of await food.getIngredients()) {
+		await food.getIngredients((ingredient) => {
 			ingredient.removeParent(food);
-		}
+		});
 		const ref = doc(db, 'foodRegister', food.getId());
 		await deleteDoc(ref);
 		deleteKeyNamePair(food.getId());
