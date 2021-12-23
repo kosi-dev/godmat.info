@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Food } from '$lib/core/food';
-	import { onMount } from 'svelte';
+	import { FoodRegister } from '$lib/core/food-register';
 	import Button from './Button.svelte';
 	import Tag from './Tag.svelte';
 	import TextField from './TextField.svelte';
@@ -11,12 +11,14 @@
 	export let weight: number = undefined;
 
 	// Some variables are explicit because their getters are async.
-	let ingredients: Array<Food> = [];
+	let ingredientNames: Array<Food> = [];
 	let price: number = 0;
 
 	async function updateAttributes(food) {
 		if (food != null) {
-			ingredients = await food.getIngredients();
+			ingredientNames = [];
+			FoodRegister.getNames(food.getIngredientIds(), (name) => ingredientNames.push(name));
+			ingredientNames = ingredientNames;
 			price = await food.getPrice();
 		}
 	}
@@ -26,17 +28,19 @@
 </script>
 
 <div>
-	{#if food}
+	{#if !food}
+		<h3>Undefined food!</h3>
+	{:else}
 		<h3>{food.getName()}</h3>
 		{#each food.getTagNames() as text}
 			<Tag {text} />
 		{/each}
 		<p>
-			{#if ingredients.length}
+			{#if ingredientNames.length}
 				<span
 					>Ingredienser:
-					{#each ingredients as ingredient}
-						<span>{ingredient.getName() + ', '}</span>
+					{#each ingredientNames as name}
+						<span>{name + ', '}</span>
 					{/each}
 				</span>
 			{/if}
@@ -52,8 +56,6 @@
 				<span>Weight: {weight}</span>
 			{/if}
 		{/if}
-	{:else}
-		<h3>Undefined food!</h3>
 	{/if}
 </div>
 

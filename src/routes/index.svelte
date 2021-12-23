@@ -17,7 +17,8 @@
 	let selectedTag: FoodTag = null;
 
 	onMount(async () => {
-		FoodRegister.getAll(addFood);
+		await FoodRegister.init();
+		await FoodRegister.getAll(addFood);
 		onAuthStateChanged(auth, async (u) => {
 			user = u;
 		});

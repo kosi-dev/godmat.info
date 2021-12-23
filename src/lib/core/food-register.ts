@@ -21,16 +21,32 @@ export { FoodRegister };
 
 namespace FoodRegister {
 	const max_count: number = 5;
+	const nameRef = doc(db, 'ext', 'names');
+	let keyNamePairs: Object;
 
 	export async function init() {
-		const nameRef = doc(db, 'ext', 'names');
-		for (let ref of [nameRef]) {
-			getDoc(ref).then((docSnap) => {
-				if (!docSnap.exists()) {
-					setDoc(ref, {});
-				}
-			});
-		}
+		getDoc(nameRef).then((docSnap) => {
+			if (!docSnap.exists()) {
+				setDoc(nameRef, {});
+				keyNamePairs = {};
+			} else {
+				keyNamePairs = docSnap.data();
+			}
+		});
+	}
+
+	async function updateKeyNamePair(id: string, name: string) {
+		keyNamePairs[id] = name;
+		let data = {};
+		data[id] = name;
+		await updateDoc(nameRef, data);
+	}
+
+	async function deleteKeyNamePair(id) {
+		delete keyNamePairs[id];
+		let data = {};
+		data[id] = deleteField();
+		await updateDoc(nameRef, data);
 	}
 
 	/**
@@ -41,10 +57,7 @@ namespace FoodRegister {
 	export async function put(food: Food): Promise<void> {
 		const ref = doc(db, 'foodRegister', food.getId());
 		await setDoc(ref, Object.assign(new Object(), food));
-		let data = {};
-		data[food.getId()] = food.getName();
-		const nameRef = doc(db, 'ext', 'names');
-		await updateDoc(nameRef, data);
+		await updateKeyNamePair(food.getId(), food.getName());
 		console.log(`[DB] Wrote ${food.getName()}`);
 	}
 
@@ -65,10 +78,7 @@ namespace FoodRegister {
 		}
 		const ref = doc(db, 'foodRegister', food.getId());
 		await deleteDoc(ref);
-		let data = {};
-		data[food.getId()] = deleteField();
-		const nameRef = doc(db, 'ext', 'names');
-		await updateDoc(nameRef, data);
+		deleteKeyNamePair(food.getId());
 		console.log(`[DB] Deleted ${food.getName()}`);
 		return true;
 	}
@@ -127,17 +137,10 @@ namespace FoodRegister {
 		searchString: string,
 		fallback,
 		tag: FoodTag = null
-	): Promise<Array<Food>> {
-		const nameRef = doc(db, 'ext', 'names');
-		const docSnap = await getDoc(nameRef);
-		if (!docSnap.exists()) {
-			console.log(`[DB] Could not read from ext/names!`);
-			return null;
-		}
-		const data: object = docSnap.data();
+	) {
 		let count = 0;
-		for (let key of Object.keys(data)) {
-			let name = data[key];
+		for (let key of Object.keys(keyNamePairs)) {
+			let name = keyNamePairs[key];
 			if (name.toLowerCase().includes(searchString.toLowerCase())) {
 				let food: Food = await get(key);
 				if (tag === null || food.hasTag(tag)) {
@@ -161,5 +164,11 @@ namespace FoodRegister {
 		const ref = doc(db, 'foodRegister', key);
 		const docSnap = await getDoc(ref);
 		return docSnap.exists();
+	}
+
+	export function getNames(ids: Array<string>, fallback) {
+		for (let id of ids) {
+			fallback(keyNamePairs[id]);
+		}
 	}
 }

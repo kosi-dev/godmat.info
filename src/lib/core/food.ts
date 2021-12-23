@@ -138,7 +138,7 @@ class Food {
 	 * @returns `true` if `food` was added, `false` otherwise
 	 */
 	public async addIngredient(ingredient: Food, weight: number = 100): Promise<boolean> {
-		if (await ingredient.hasIngredient(this)) {
+		if (ingredient.getId() == this.getId() || await ingredient.hasIngredient(this)) {
 			console.error('Cyclic ingredients are not allowed!');
 			return false;
 		}
@@ -170,12 +170,10 @@ class Food {
 	 *
 	 * @returns the direct ingredient children
 	 */
-	public async getIngredients(): Promise<Array<Food>> {
-		let ingredients: Array<Food> = [];
+	public async getIngredients(fallback) {
 		for (let id of Object.keys(this._ingredients)) {
-			ingredients.push(await FoodRegister.get(id));
+			fallback(await FoodRegister.get(id));
 		}
-		return ingredients;
 	}
 
 	public getIngredientIds(): Array<string> {
@@ -189,7 +187,8 @@ class Food {
 	 * @returns `true` if food is an ingredient, `false` otherwise
 	 */
 	public async hasIngredient(food: Food): Promise<boolean> {
-		for (let ingredient of await this.getIngredients()) {
+		for (let id of Object.keys(this._ingredients)) {
+			let ingredient = await FoodRegister.get(id);
 			if (ingredient.getId() === food.getId() || (await ingredient.hasIngredient(food))) {
 				return true;
 			}
@@ -233,9 +232,9 @@ class Food {
 	 */
 	public async getPrice(): Promise<number> {
 		let price = this._basePrice;
-		for (let ingredient of await this.getIngredients()) {
+		await this.getIngredients(async (ingredient) => {
 			price += await ingredient.getPrice();
-		}
+		});
 		return price;
 	}
 
@@ -243,11 +242,16 @@ class Food {
 		return this._time;
 	}
 
-	public async getNutrition(): Promise<Object> {
+	public async getNutrition(ingredients: Array<Food> = null): Promise<Object> {
 		if (Object.keys(this._nutrition).length !== 0) {
 			return this._nutrition;
 		} else {
-			let ingredients = await this.getIngredients();
+			if (ingredients == null) {
+				ingredients = [];
+				await this.getIngredients((ingredient) => {
+					ingredients.push(ingredient);
+				});
+			}
 			if (ingredients.length) {
 				let nutrition = {}
 				let weight: number = 0;
@@ -264,7 +268,6 @@ class Food {
 					});
 				}
 				if (weight !== 0) {
-					console.log(weight);
 					for (let key of Object.keys(nutrition)) {
 						nutrition[key] = (nutrition[key] / weight).toFixed(2);
 					}

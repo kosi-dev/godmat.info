@@ -37,6 +37,7 @@
 	let searchResults: Array<Food> = [];
 
 	onMount(async () => {
+		await FoodRegister.init()
 		await readFood();
 		onAuthStateChanged(auth, async (u) => {
 			user = u;
@@ -49,11 +50,17 @@
 		});
 	});
 
+	function addIngredientFallback(food) {
+		ingredients.push(food);
+		ingredients = ingredients;
+	}
+
 	async function readFood() {
 		food = await FoodRegister.get(slug);
 		if (food !== null) {
-			ingredients = await food.getIngredients();
-			nutrition = await food.getNutrition();
+			ingredients = [];
+			await food.getIngredients(addIngredientFallback);
+			nutrition = await food.getNutrition(ingredients);
 			name = food.getName();
 			description = food.getDescription();
 		}
@@ -74,7 +81,6 @@
 	async function editButtonOnClick() {
 		if (edit) {
 			await writeFood();
-			await readFood();
 		}
 		edit = !edit;
 	}
@@ -112,11 +118,17 @@
 		goto('../');
 	}
 
+	function addSearchResult(food) {
+		searchResults.push(food);
+		searchResults = searchResults;
+	}
+
 	async function onKeyPress(event) {
 		if (event.keyCode === 8) {
 			searchResults = [];
 		} else if (event.keyCode === 13) {
-			searchResults = await FoodRegister.getMatches(searchString);
+			searchResults = [];
+			FoodRegister.getMatches(searchString, addSearchResult);
 			(document.activeElement as HTMLElement).blur();
 		}
 	}
