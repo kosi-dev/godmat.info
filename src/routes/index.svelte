@@ -10,6 +10,7 @@
 	import TextField from '$lib/ui/TextField.svelte';
 	import SwitchButton from '$lib/ui/SwitchButton.svelte';
 	import { onAuthStateChanged } from 'firebase/auth';
+import FoodItemLoading from '$lib/ui/FoodItemLoading.svelte';
 
 	let foods: Array<Food> = [];
 	let user = null;
@@ -90,8 +91,14 @@
 	{/each}
 </details>
 <br />
-{#each foods as food}
-	<div on:click={() => goto('/food/' + food.getId())}>
-		<FoodItem {food} />
-	</div>
-{/each}
+{#if foods.length}
+	{#each foods as food}
+		<div on:click={() => goto('/food/' + food.getId())}>
+			<FoodItem {food} />
+		</div>
+	{/each}
+{:else}
+	{#each [0, 1, 2, 3, 4] as food}
+		<FoodItemLoading />
+	{/each}
+{/if}
