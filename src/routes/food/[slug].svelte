@@ -1,21 +1,11 @@
-<script context="module" lang="ts">
-	let slug: string;
-
-	/**
-	 * @type {import('@sveltejs/kit').Load}
-	 */
-	export async function load({ page, fetch, session, context }) {
-		slug = page.params.slug;
-		return { props: {} };
-	}
-</script>
 
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { Food, FoodTagLabels } from '$lib/core/food';
 	import { FoodRegister } from '$lib/core/food-register';
 	import { auth } from '$lib/firebase/firebase';
+	import { onAuthStateChanged } from 'firebase/auth';
 	import Button from '$lib/ui/Button.svelte';
 	import FoodItem from '$lib/ui/FoodItem.svelte';
 	import ButtonWithDialog from '$lib/ui/ButtonWithDialog.svelte';
@@ -23,7 +13,6 @@
 	import Tag from '$lib/ui/Tag.svelte';
 	import TextField from '$lib/ui/TextField.svelte';
 	import TextArea from '$lib/ui/TextArea.svelte';
-	import { onAuthStateChanged } from 'firebase/auth';
 	import NutritionDiagram from '$lib/ui/NutritionDiagram.svelte';
 
 	let edit: boolean = false;
@@ -35,9 +24,9 @@
 	let description: string = '';
 	let searchString: string = '';
 	let searchResults: Array<Food> = [];
-
-	onMount(async () => {
-		await FoodRegister.init()
+	
+	async function onLoad(slug) {
+		await FoodRegister.init();
 		await readFood();
 		onAuthStateChanged(auth, async (u) => {
 			user = u;
@@ -48,7 +37,9 @@
 				}
 			}
 		});
-	});
+	}
+
+	$: onLoad($page.params.slug);
 
 	function addIngredientCallback(food) {
 		ingredients.push(food);
@@ -56,7 +47,7 @@
 	}
 
 	async function readFood() {
-		food = await FoodRegister.get(slug);
+		food = await FoodRegister.get($page.params.slug);
 		if (food !== null) {
 			ingredients = [];
 			await food.getIngredients(addIngredientCallback);
