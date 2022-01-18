@@ -217,6 +217,7 @@
 		position: absolute;
 		height: 400px;
 		width: 50%;
-		overflow: scroll;
+		overflow: auto;
+		background-color: rgb(200, 200, 200, 0.5);
 	}
 </style>
