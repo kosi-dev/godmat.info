@@ -4,8 +4,8 @@
 	/**
 	 * @type {import('@sveltejs/kit').Load}
 	 */
-	export async function load({ url, params, fetch, session, context }) {
-		slug = params.slug;
+	export async function load({ page, fetch, session, context }) {
+		slug = page.params.slug;
 		return { props: {} };
 	}
 </script>
