@@ -167,11 +167,16 @@
 		<h3>Ingredients</h3>
 		<TextField bind:value={searchString} {onKeyPress} style={'width: 50%'} />
 		<br />
-		{#each searchResults as ingredient}
-			<div on:click={() => addIngredient(ingredient)}>
-				<FoodItem food={ingredient} />
+
+		{#if searchResults.length}
+			<div class="searchResultsContainer">
+				{#each searchResults as ingredient}
+					<div on:click={() => addIngredient(ingredient)}>
+						<FoodItem food={ingredient} />
+					</div>
+				{/each}
 			</div>
-		{/each}
+		{/if}
 		{#each ingredients as ingredient}
 			<FoodItem
 				food={ingredient}
@@ -206,3 +211,12 @@
 		{/if}
 	{/if}
 {/if}
+
+<style>
+	.searchResultsContainer {
+		position: absolute;
+		height: 400px;
+		width: 50%;
+		overflow: scroll;
+	}
+</style>
