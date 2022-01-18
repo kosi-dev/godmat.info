@@ -123,10 +123,16 @@ class Food {
 	}
 
 	public setDescription(description: string) {
+		if (description.length > 10_000) {
+			description = description.substring(0, 10_000);
+		}
 		this._description = description;
 	}
 
 	public setName(name: string) {
+		if (name.length > 100) {
+			name = name.substring(0, 100);
+		}
 		this._name = name;
 	}
 
@@ -148,6 +154,9 @@ class Food {
 	}
 
 	public setIngredientWeight(ingredient: Food, weight: number) {
+		if (weight > 100_000) {
+			weight = 100_000;
+		}
 		this._ingredients[ingredient.getId()] = weight;
 	}
 
@@ -197,6 +206,9 @@ class Food {
 	}
 
 	public setBasePrice(basePrice: number) {
+		if (basePrice > 100_000) {
+			basePrice = 100_000;
+		}
 		this._basePrice = basePrice;
 	}
 
