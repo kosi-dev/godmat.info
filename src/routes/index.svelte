@@ -10,7 +10,6 @@
 	import TextField from '$lib/ui/TextField.svelte';
 	import SwitchButton from '$lib/ui/SwitchButton.svelte';
 	import { onAuthStateChanged } from 'firebase/auth';
-	import FoodItemLoading from '$lib/ui/FoodItemLoading.svelte';
 
 	let foods: Array<Food> = null;
 	let user = null;
