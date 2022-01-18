@@ -10,16 +10,17 @@
 	import TextField from '$lib/ui/TextField.svelte';
 	import SwitchButton from '$lib/ui/SwitchButton.svelte';
 	import { onAuthStateChanged } from 'firebase/auth';
-import FoodItemLoading from '$lib/ui/FoodItemLoading.svelte';
+	import FoodItemLoading from '$lib/ui/FoodItemLoading.svelte';
 
-	let foods: Array<Food> = [];
+	let foods: Array<Food> = null;
 	let user = null;
 	let searchString: string = '';
 	let selectedTag: FoodTag = null;
+	let selectedUserFoods: boolean = false;
 
 	onMount(async () => {
 		await FoodRegister.init();
-		await FoodRegister.getAll(addFood);
+		await updateFoods();
 		onAuthStateChanged(auth, async (u) => {
 			user = u;
 		});
@@ -38,27 +39,39 @@ import FoodItemLoading from '$lib/ui/FoodItemLoading.svelte';
 	}
 
 	function addFood(food) {
+		if (!foods) {
+			foods = [];
+		}
 		foods.push(food);
 		foods = foods;
 	}
 
-	async function updateFoods(searchString: string, selectedTag: FoodTag) {
-		foods = [];
-		if (searchString.length > 1) {
-			FoodRegister.getMatches(searchString, addFood);
+	async function updateFoods() {
+		foods = null;
+		if (selectedUserFoods) {
+			await FoodRegister.getMatches(
+				addFood, searchString, selectedTag, user.uid);
 		} else {
-			FoodRegister.getAll(addFood, selectedTag);
+			await FoodRegister.getMatches(addFood, searchString, selectedTag);
+		}
+		if (foods === null) {
+			foods = [];
 		}
 	}
 
-	function updateSelectedTag(tag: FoodTag) {
+	function selectTag(tag: FoodTag) {
 		selectedTag = tag;
-		updateFoods(searchString, selectedTag);
+		updateFoods();
+	}
+
+	function selectUserFoods(select: boolean) {
+		selectedUserFoods = select;
+		updateFoods();	
 	}
 
 	function onKeyPress(event) {
 		if (event.keyCode === 13) {
-			updateFoods(searchString, selectedTag);
+			updateFoods();
 			(document.activeElement as HTMLElement).blur();
 		}
 	}
@@ -80,25 +93,38 @@ import FoodItemLoading from '$lib/ui/FoodItemLoading.svelte';
 <br />
 <br />
 <details>
-	<summary>Filter by tag</summary>
+	<summary>Filtrer</summary>
+	<br>
+	{#if user}
+		<SwitchButton
+			state={selectedUserFoods}
+			offText={"Mine oppskrifter"}
+			switchOff={() => selectUserFoods(false)}
+			switchOn={() => selectUserFoods(true)}
+		/>
+		<br>
+		<br>
+	{/if}
 	{#each [...FoodTagLabels] as [tag, text]}
 		<SwitchButton
 			state={tag === selectedTag}
 			offText={text}
-			switchOff={() => updateSelectedTag(null)}
-			switchOn={() => updateSelectedTag(tag)}
+			switchOff={() => selectTag(null)}
+			switchOn={() => selectTag(tag)}
 		/>
 	{/each}
 </details>
 <br />
-{#if foods.length}
-	{#each foods as food}
-		<div on:click={() => goto('/food/' + food.getId())}>
-			<FoodItem {food} />
-		</div>
-	{/each}
+{#if foods !== null}
+	{#if foods.length === 0}
+		<p>Ingen resultater :(</p>
+	{:else}
+		{#each foods as food}
+			<div on:click={() => goto('/food/' + food.getId())}>
+				<FoodItem {food} />
+			</div>
+		{/each}
+	{/if}
 {:else}
-	{#each [0, 1, 2, 3, 4] as food}
-		<FoodItemLoading />
-	{/each}
+	<p>Loading..</p>
 {/if}

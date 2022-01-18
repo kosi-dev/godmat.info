@@ -12,14 +12,14 @@
 
 	// Some variables are explicit because their getters are async.
 	let ingredientNames: Array<Food> = [];
-	let price: number = 0;
 
 	async function updateAttributes(food) {
 		if (food != null) {
 			ingredientNames = [];
-			FoodRegister.getNames(food.getIngredientIds(), (name) => ingredientNames.push(name));
+			FoodRegister.getNames(food.getIngredientIds(), (name) =>
+				ingredientNames.push(name)
+			);
 			ingredientNames = ingredientNames;
-			price = await food.getPrice();
 		}
 	}
 

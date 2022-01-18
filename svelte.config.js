@@ -11,7 +11,7 @@ const config = {
 		// hydrate the <div id="svelte"> element in src/app.html
 		target: '#svelte',
 		adapter: firebase(),
-		ssr: false //https://kit.svelte.dev/faq#integrations
+		// ssr: false https://kit.svelte.dev/faq#integrations
 	},
 };
 

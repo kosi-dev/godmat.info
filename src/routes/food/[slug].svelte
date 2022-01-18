@@ -4,8 +4,8 @@
 	/**
 	 * @type {import('@sveltejs/kit').Load}
 	 */
-	export async function load({ page, fetch, session, context }) {
-		slug = page.params.slug;
+	export async function load({ url, params, fetch, session, context }) {
+		slug = params.slug;
 		return { props: {} };
 	}
 </script>
@@ -129,7 +129,7 @@
 			searchResults = [];
 		} else if (event.keyCode === 13) {
 			searchResults = [];
-			FoodRegister.getMatches(searchString, addSearchResult);
+			FoodRegister.getMatches(addSearchResult, searchString);
 			(document.activeElement as HTMLElement).blur();
 		}
 	}

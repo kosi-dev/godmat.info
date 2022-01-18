@@ -20,7 +20,7 @@ import { Food, FoodTag } from './food';
 export { FoodRegister };
 
 namespace FoodRegister {
-	const max_count: number = 5;
+	const max_count: number = 10;
 	const nameRef = doc(db, 'ext', 'names');
 	let keyNamePairs: Object;
 
@@ -102,29 +102,29 @@ namespace FoodRegister {
 		}
 	}
 
-	/**
-	 * Gets foods from the database.
-	 *
-	 * @param tag the tag to filter on
-	 * @returns array of all foods
-	 */
-	export async function getAll(callback, tag: FoodTag = null) {
-		let q: Query = (tag !== null)
-			? query(
-				collection(db, 'foodRegister'),
-				where('_tags', 'array-contains', tag),
-				orderBy('_time', 'desc'),
-				limit(max_count))
-			: query(
-				collection(db, 'foodRegister'),
-				orderBy('_time', 'desc'),
-				limit(max_count));
-		const querySnapshot = await getDocs(q);
-		querySnapshot.forEach((docSnap) => {
-			callback(Object.assign(new Food(), docSnap.data()));
-		});
-		console.log(`[DB] Read all!`);
-	}
+	// /**
+	//  * Gets foods from the database.
+	//  *
+	//  * @param tag the tag to filter on
+	//  * @returns array of all foods
+	//  */
+	// export async function getAll(callback, tag: FoodTag = null) {
+	// 	let q: Query = (tag !== null)
+	// 		? query(
+	// 			collection(db, 'foodRegister'),
+	// 			where('_tags', 'array-contains', tag),
+	// 			orderBy('_time', 'desc'),
+	// 			limit(max_count))
+	// 		: query(
+	// 			collection(db, 'foodRegister'),
+	// 			orderBy('_time', 'desc'),
+	// 			limit(max_count));
+	// 	const querySnapshot = await getDocs(q);
+	// 	querySnapshot.forEach((docSnap) => {
+	// 		callback(Object.assign(new Food(), docSnap.data()));
+	// 	});
+	// 	console.log(`[DB] Read all!`);
+	// }
 
 	/**
 	 * Gets all foods whose names include `searchString`.
@@ -134,25 +134,62 @@ namespace FoodRegister {
 	 * @returns array of matching foods
 	 */
 	export async function getMatches(
-		searchString: string,
 		callback,
-		tag: FoodTag = null
+		searchString: string,
+		tag: FoodTag = null,
+		uid: string = null
 	) {
-		let count = 0;
-		for (let key of Object.keys(keyNamePairs)) {
-			let name = keyNamePairs[key];
-			if (name.toLowerCase().includes(searchString.toLowerCase())) {
-				let food: Food = await get(key);
-				if (tag === null || food.hasTag(tag)) {
-					callback(food);
-					count += 1;
-					if (count == max_count) {
-						break;
+		if (!searchString) {
+			let q: Query = (tag !== null)
+			? ((uid !== null)
+				? query(
+					collection(db, 'foodRegister'),
+					where('_tags', 'array-contains', tag),
+					where('_author', '==', uid),
+					orderBy('_time', 'desc'),
+					limit(max_count))
+				: query(
+					collection(db, 'foodRegister'),
+					where('_tags', 'array-contains', tag),
+					orderBy('_time', 'desc'),
+					limit(max_count))
+			)	
+			: ((uid !== null)
+				? query(
+					collection(db, 'foodRegister'),
+					where('_author', '==', uid),
+					orderBy('_time', 'desc'),
+					limit(max_count))
+				: query(
+					collection(db, 'foodRegister'),
+					orderBy('_time', 'desc'),
+					limit(max_count))
+			)
+		
+		const querySnapshot = await getDocs(q);
+		querySnapshot.forEach((docSnap) => {
+			callback(Object.assign(new Food(), docSnap.data()));
+		});
+		console.log(`[DB] Read all!`);
+		}
+
+		if (searchString) {
+			let count = 0;
+			for (let key of Object.keys(keyNamePairs).reverse()) {
+				let name = keyNamePairs[key];
+				if (name.toLowerCase().includes(searchString.toLowerCase())) {
+					let food: Food = await get(key);
+					if (tag === null || food.hasTag(tag)) {
+						callback(food);
+						count += 1;
+						if (count == max_count) {
+							break;
+						}
 					}
 				}
 			}
+			console.log(`[DB] Read matches of ${searchString}!`);
 		}
-		console.log(`[DB] Read matches of ${searchString}!`);
 	}
 
 	export async function writeParents(child: Food) {
