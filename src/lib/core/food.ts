@@ -170,9 +170,9 @@ class Food {
 	 *
 	 * @returns the direct ingredient children
 	 */
-	public async getIngredients(fallback) {
+	public async getIngredients(callback) {
 		for (let id of Object.keys(this._ingredients)) {
-			fallback(await FoodRegister.get(id));
+			callback(await FoodRegister.get(id));
 		}
 	}
 

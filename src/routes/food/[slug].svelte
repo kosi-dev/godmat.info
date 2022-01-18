@@ -50,7 +50,7 @@
 		});
 	});
 
-	function addIngredientFallback(food) {
+	function addIngredientCallback(food) {
 		ingredients.push(food);
 		ingredients = ingredients;
 	}
@@ -59,7 +59,7 @@
 		food = await FoodRegister.get(slug);
 		if (food !== null) {
 			ingredients = [];
-			await food.getIngredients(addIngredientFallback);
+			await food.getIngredients(addIngredientCallback);
 			nutrition = await food.getNutrition(ingredients);
 			name = food.getName();
 			description = food.getDescription();

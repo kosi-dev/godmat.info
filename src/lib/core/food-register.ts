@@ -108,7 +108,7 @@ namespace FoodRegister {
 	 * @param tag the tag to filter on
 	 * @returns array of all foods
 	 */
-	export async function getAll(fallback, tag: FoodTag = null) {
+	export async function getAll(callback, tag: FoodTag = null) {
 		let q: Query = (tag !== null)
 			? query(
 				collection(db, 'foodRegister'),
@@ -121,7 +121,7 @@ namespace FoodRegister {
 				limit(max_count));
 		const querySnapshot = await getDocs(q);
 		querySnapshot.forEach((docSnap) => {
-			fallback(Object.assign(new Food(), docSnap.data()));
+			callback(Object.assign(new Food(), docSnap.data()));
 		});
 		console.log(`[DB] Read all!`);
 	}
@@ -135,7 +135,7 @@ namespace FoodRegister {
 	 */
 	export async function getMatches(
 		searchString: string,
-		fallback,
+		callback,
 		tag: FoodTag = null
 	) {
 		let count = 0;
@@ -144,7 +144,7 @@ namespace FoodRegister {
 			if (name.toLowerCase().includes(searchString.toLowerCase())) {
 				let food: Food = await get(key);
 				if (tag === null || food.hasTag(tag)) {
-					fallback(food);
+					callback(food);
 					count += 1;
 					if (count == max_count) {
 						break;
@@ -166,9 +166,9 @@ namespace FoodRegister {
 		return docSnap.exists();
 	}
 
-	export function getNames(ids: Array<string>, fallback) {
+	export function getNames(ids: Array<string>, callback) {
 		for (let id of ids) {
-			fallback(keyNamePairs[id]);
+			callback(keyNamePairs[id]);
 		}
 	}
 }
