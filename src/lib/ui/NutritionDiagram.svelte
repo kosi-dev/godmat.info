@@ -3,10 +3,13 @@
   	import Chart from 'svelte-frappe-charts';
 
 	export let nutrition: object;
+	export let foodWeight: number;
 
 	let selectedGender = 'Male';
 	let selectedAge = '18-30 y';
-	let selectedWeight = 100;
+	let selectedWeight = foodWeight;
+	let selectedTime = 1;
+
 	let donutData = {
 		labels: ['Karbohydrat', 'Protein', 'Fett'],
 		datasets: [{ values: [
@@ -19,19 +22,25 @@
 		['Vit A', 'Vit D', 'Vit E', 'Vit B1', 'Vit B2', 'Vit B3', 'Vit B6', 'Folat', 'Vit C'],
 		selectedGender,
 		selectedAge,
-		selectedWeight
+		selectedWeight,
+		selectedTime
 	);
 	$: mineralsData = customData(
 		['Ca', 'P', 'K', 'Mg', 'Fe', 'Zn', 'Cu', 'I', 'Se'],
 		selectedGender,
 		selectedAge,
-		selectedWeight
+		selectedWeight,
+		selectedTime
 	);
+	$: kcal = (nutrition['Energi2'] * selectedWeight / 100).toFixed(0);
 
-	function customData(keys, selectedGender, selectedAge, selectedWeight) {
+	function customData(keys, 
+			selectedGender, selectedAge, selectedWeight, selectedTime) {
 		let data = [];
 		for (let key of keys) {
-			data.push((nutrition[key] / Recommended[key][selectedGender][selectedAge] * selectedWeight / 100).toFixed(2));
+			let rec = Recommended[key][selectedGender][selectedAge];
+			let value = (nutrition[key] * selectedWeight) / (rec * selectedTime);
+			data.push(value.toFixed(2));
 		}
 		return {
 			labels: keys,
@@ -43,7 +52,7 @@
 {#if nutrition && nutrition != {}}
 	<h2>Næringsinnhold, per
 		<select bind:value={selectedWeight}>
-			{#each [50, 100, 200, 500, 1000] as weight}
+			{#each [100, foodWeight] as weight}
 				<option value={weight}>
 					{weight}
 				</option>
@@ -53,14 +62,14 @@
 
 	<h3>Energi</h3>
 
-	<p>{nutrition['Energi2'] * selectedWeight / 100} kcal, med følgende fordeling:</p>
+	<p>{kcal} kcal, med følgende prosentvise fordeling:</p>
 	{#if donutData}
 		<Chart data={donutData} type="donut" />
 	{/if}
 
 	<h3>Vitaminer og mineraler</h3>
 	<p>
-		Prosent av anbefalt daglig inntak for
+		Prosent av anbefalt inntak for
 		<select bind:value={selectedGender}>
 			{#each ['Male', 'Female'] as gender}
 				<option value={gender}>
@@ -76,6 +85,15 @@
 				</option>
 			{/each}
 		</select>
+		, for
+		<select bind:value={selectedTime}>
+			{#each [['en dag', 1], ['en uke', 7], ['en måned', 30]] as time}
+				<option value={time[1]}>
+					{time[0]}
+				</option>
+			{/each}
+		</select>
+		.
 	</p>
 
 	{#if vitaminsData}

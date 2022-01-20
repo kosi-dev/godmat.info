@@ -24,7 +24,8 @@
 	let description: string = '';
 	let searchString: string = '';
 	let searchResults: Array<Food> = [];
-	
+	let foodWeight = 0;
+
 	async function onLoad(slug) {
 		await FoodRegister.init();
 		await readFood();
@@ -41,12 +42,14 @@
 
 	$: onLoad($page.params.slug);
 
-	function addIngredientCallback(food) {
-		ingredients.push(food);
+	function addIngredientCallback(ingredient) {
+		ingredients.push(ingredient);
+		foodWeight += food.getIngredientWeight(ingredient)
 		ingredients = ingredients;
 	}
 
 	async function readFood() {
+		foodWeight = 0;
 		food = await FoodRegister.get($page.params.slug);
 		if (food !== null) {
 			ingredients = [];
@@ -64,9 +67,7 @@
 	}
 
 	async function gotoFood(food: Food) {
-		goto('/food/' + food.getId()).then(async () => {
-			readFood();
-		});
+		goto('/food/' + food.getId());
 	}
 
 	async function editButtonOnClick() {
@@ -193,7 +194,9 @@
 		{/each}
 		<p>{food.getTime().split(' ')[0]}</p>
 		<p>{food.getDescription()}</p>
-
+		{#if foodWeight !== 0}
+			<p>Total weight of ingredients: {foodWeight}</p>
+		{/if}
 		{#if ingredients.length}
 			<h3>Ingredients</h3>
 			{#each ingredients as ingredient}
@@ -207,7 +210,7 @@
 		{/if}
 		
 		{#if nutrition !== null}
-			<NutritionDiagram {nutrition} />
+			<NutritionDiagram {nutrition} {foodWeight}/>
 		{/if}
 	{/if}
 {/if}
