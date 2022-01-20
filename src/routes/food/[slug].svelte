@@ -127,36 +127,33 @@
 	}
 </script>
 
-<Button onClick={() => goto('../')} text={'Home'} />
 
 {#if food === undefined}
 	<h2>Loading..</h2>
 {:else if food === null}
 	<h2>Undefined food!</h2>
 {:else}
-	{#if user && user.uid === food.getAuthor()}
-		<Button onClick={editButtonOnClick} text={edit ? 'Save' : 'Edit'} />
-	{/if}
 	{#if edit}
+		<Button onClick={editButtonOnClick} text={'Lagre'} />
 		<ButtonWithDialog
-			text={'Cancel'}
+			text={'Avbryt'}
 			onClick={cancelEdit}
-			dialogText={'Are you sure you want to discard your changes?'}
+			dialogText={'Er du sikker på at du vil forkaste endringene dine?'}
 		/>
 		<ButtonWithDialog
-			text={'Delete ' + food.getName()}
+			text={'Slett ' + name}
 			onClick={deleteButtonOnClick}
-			dialogText={`Are you sure you want to delete ${food.getName()}?`}
+			dialogText={`Er du sikker på at du vil slette ${name}?`}
 		/>
-		<h3>Name</h3>
+		<h3>Navn</h3>
 		<div>
 			<TextField bind:value={name} />
 		</div>
-		<h3>Description</h3>
+		<h3>Beskrivelse</h3>
 		<div>
 			<TextArea bind:value={description} />
 		</div>
-		<h3>Tags</h3>
+		<h3>Etiketter</h3>
 		{#each [...FoodTagLabels] as [tag, text]}
 			<SwitchButton
 				state={food.hasTag(tag)}
@@ -165,7 +162,7 @@
 				switchOn={() => food.addTag(tag)}
 			/>
 		{/each}
-		<h3>Ingredients</h3>
+		<h3>Ingredienser</h3>
 		<TextField bind:value={searchString} {onKeyPress} style={'width: 50%'} />
 		<br />
 
@@ -188,6 +185,10 @@
 			/>
 		{/each}
 	{:else}
+		<Button onClick={() => goto('../')} text={'Hjem'} />
+		{#if user && user.uid === food.getAuthor()}
+			<Button onClick={editButtonOnClick} text={edit ? 'Lagre' : 'Rediger'} />
+		{/if}
 		<h1>{food.getName()}</h1>
 		{#each food.getTagNames() as text}
 			<Tag {text} />
@@ -195,10 +196,10 @@
 		<p>{food.getTime().split(' ')[0]}</p>
 		<p>{food.getDescription()}</p>
 		{#if foodWeight !== 0}
-			<p>Total weight of ingredients: {foodWeight}</p>
+			<p>Totalvekt: {foodWeight} gram.</p>
 		{/if}
 		{#if ingredients.length}
-			<h3>Ingredients</h3>
+			<h3>Ingredienser</h3>
 			{#each ingredients as ingredient}
 				<div on:click={() => gotoFood(ingredient)}>
 					<FoodItem

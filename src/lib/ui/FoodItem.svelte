@@ -6,11 +6,10 @@
 	import TextField from './TextField.svelte';
 
 	export let food: Food;
-	export let onDestroy: Function = undefined;
-	export let onChangeWeight: (weight: number) => void = undefined;
 	export let weight: number = undefined;
+	export let onChangeWeight: (weight: number) => void = undefined;
+	export let onDestroy: Function = undefined;
 
-	// Some variables are explicit because their getters are async.
 	let ingredientNames: Array<Food> = [];
 
 	async function updateAttributes(food) {
@@ -54,6 +53,8 @@
 				<TextField bind:value={weight} type={"number"}></TextField>
 			{:else} 
 				<span>Weight: {weight}</span>
+				<br>
+				<br>
 			{/if}
 		{/if}
 	{/if}

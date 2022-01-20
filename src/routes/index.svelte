@@ -79,15 +79,15 @@
 <h1>godmat.info</h1>
 <p>- God info om god mat!</p>
 {#if !user}
-	<Button onClick={signInButtonOnClick} text={'Sign in'} />
+	<Button onClick={signInButtonOnClick} text={'Logg in med Google'} />
 {:else}
-	<p>Signed in as {user.displayName}</p>
-	<Button onClick={signOutButtonOnClick} text={'Sign out'} />
-	<Button onClick={createFoodButtonOnClick} text={'+ Create new food'} />
+	<p>Innlogget som {user.displayName} ✔️</p>
+	<Button onClick={signOutButtonOnClick} text={'Logg ut'} />
+	<Button onClick={createFoodButtonOnClick} text={'+ Lag ny oppskrift'} />
 {/if}
 <br />
 <br />
-<h3>Search</h3>
+<h3>Søk</h3>
 <TextField bind:value={searchString} {onKeyPress} style={'width: 50%'} />
 <br />
 <br />
