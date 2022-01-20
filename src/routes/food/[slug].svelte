@@ -50,7 +50,7 @@
 
 	async function readFood() {
 		foodWeight = 0;
-		food = await FoodRegister.get($page.params.slug);
+		food = await FoodRegister.getFood($page.params.slug);
 		if (food !== null) {
 			ingredients = [];
 			await food.getIngredients(addIngredientCallback);
@@ -63,7 +63,7 @@
 	async function writeFood() {
 		food.setDescription(description);
 		food.setName(name);
-		await FoodRegister.put(food);
+		await FoodRegister.putFood(food);
 	}
 
 	async function gotoFood(food: Food) {
@@ -106,7 +106,7 @@
 	async function deleteButtonOnClick() {
 		await readFood();
 		if (food != null) {
-			await FoodRegister.remove(food);
+			await FoodRegister.removeFood(food);
 		}
 		goto('../');
 	}
@@ -121,7 +121,7 @@
 			searchResults = [];
 		} else if (event.keyCode === 13) {
 			searchResults = [];
-			FoodRegister.getMatches(addSearchResult, searchString);
+			FoodRegister.getFoods(addSearchResult, searchString);
 			(document.activeElement as HTMLElement).blur();
 		}
 	}

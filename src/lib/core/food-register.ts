@@ -54,7 +54,7 @@ namespace FoodRegister {
 	 *
 	 * @param food the food to put
 	 */
-	export async function put(food: Food): Promise<void> {
+	export async function putFood(food: Food): Promise<void> {
 		const ref = doc(db, 'foodRegister', food.getId());
 		await setDoc(ref, Object.assign(new Object(), food));
 		await updateKeyNamePair(food.getId(), food.getName());
@@ -68,7 +68,7 @@ namespace FoodRegister {
 	 * @param food the food to be removed
 	 * @returns `true` if `food` was removed, `false` otherwise.
 	 */
-	export async function remove(food: Food): Promise<boolean> {
+	export async function removeFood(food: Food): Promise<boolean> {
 		if (food.hasParents()) {
 			console.warn(`[DB] Could not delete ${food.getName()}`);
 			return false;
@@ -89,7 +89,7 @@ namespace FoodRegister {
 	 * @param id the id of the food to get
 	 * @returns the food with `id`, or null
 	 */
-	export async function get(id: string): Promise<Food> {
+	export async function getFood(id: string): Promise<Food> {
 		const ref = doc(db, 'foodRegister', id);
 		const docSnap = await getDoc(ref);
 		if (docSnap.exists()) {
@@ -102,30 +102,6 @@ namespace FoodRegister {
 		}
 	}
 
-	// /**
-	//  * Gets foods from the database.
-	//  *
-	//  * @param tag the tag to filter on
-	//  * @returns array of all foods
-	//  */
-	// export async function getAll(callback, tag: FoodTag = null) {
-	// 	let q: Query = (tag !== null)
-	// 		? query(
-	// 			collection(db, 'foodRegister'),
-	// 			where('_tags', 'array-contains', tag),
-	// 			orderBy('_time', 'desc'),
-	// 			limit(max_count))
-	// 		: query(
-	// 			collection(db, 'foodRegister'),
-	// 			orderBy('_time', 'desc'),
-	// 			limit(max_count));
-	// 	const querySnapshot = await getDocs(q);
-	// 	querySnapshot.forEach((docSnap) => {
-	// 		callback(Object.assign(new Food(), docSnap.data()));
-	// 	});
-	// 	console.log(`[DB] Read all!`);
-	// }
-
 	/**
 	 * Gets all foods whose names include `searchString`.
 	 *
@@ -133,9 +109,9 @@ namespace FoodRegister {
 	 * @param tag the tag to filter on
 	 * @returns array of matching foods
 	 */
-	export async function getMatches(
+	export async function getFoods(
 		callback,
-		searchString: string,
+		searchString: string = null,
 		tag: FoodTag = null,
 		uid: string = null
 	) {
@@ -165,20 +141,17 @@ namespace FoodRegister {
 					orderBy('_time', 'desc'),
 					limit(max_count))
 			)
-		
-		const querySnapshot = await getDocs(q);
-		querySnapshot.forEach((docSnap) => {
-			callback(Object.assign(new Food(), docSnap.data()));
-		});
-		console.log(`[DB] Read all!`);
-		}
-
-		if (searchString) {
+			const querySnapshot = await getDocs(q);
+			querySnapshot.forEach((docSnap) => {
+				callback(Object.assign(new Food(), docSnap.data()));
+			});
+			console.log(`[DB] Read all!`);
+		} else {
 			let count = 0;
 			for (let key of Object.keys(keyNamePairs).reverse()) {
 				let name = keyNamePairs[key];
 				if (name.toLowerCase().includes(searchString.toLowerCase())) {
-					let food: Food = await get(key);
+					let food: Food = await getFood(key);
 					if (tag === null || food.hasTag(tag)) {
 						callback(food);
 						count += 1;
@@ -192,18 +165,12 @@ namespace FoodRegister {
 		}
 	}
 
-	export async function writeParents(child: Food) {
+	export async function updateParentsOf(child: Food) {
 		const ref = doc(db, 'foodRegister', child.getId());
 		await updateDoc(ref, { _parents: child.getParentIds() });
 	}
 
-	export async function hasKey(key: string): Promise<boolean> {
-		const ref = doc(db, 'foodRegister', key);
-		const docSnap = await getDoc(ref);
-		return docSnap.exists();
-	}
-
-	export function getNames(ids: Array<string>, callback) {
+	export function getNamesFromKeys(ids: Array<string>, callback) {
 		for (let id of ids) {
 			callback(keyNamePairs[id]);
 		}

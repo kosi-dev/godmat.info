@@ -181,7 +181,7 @@ class Food {
 	 */
 	public async getIngredients(callback) {
 		for (let id of Object.keys(this._ingredients)) {
-			callback(await FoodRegister.get(id));
+			callback(await FoodRegister.getFood(id));
 		}
 	}
 
@@ -197,7 +197,7 @@ class Food {
 	 */
 	public async hasIngredient(food: Food): Promise<boolean> {
 		for (let id of Object.keys(this._ingredients)) {
-			let ingredient = await FoodRegister.get(id);
+			let ingredient = await FoodRegister.getFood(id);
 			if (ingredient.getId() === food.getId() || (await ingredient.hasIngredient(food))) {
 				return true;
 			}
@@ -222,14 +222,14 @@ class Food {
 
 	public addParent(parent: Food) {
 		this._parents.push(parent.getId());
-		FoodRegister.writeParents(this);
+		FoodRegister.updateParentsOf(this);
 	}
 
 	public removeParent(parent: Food) {
 		const index = this._parents.indexOf(parent.getId());
 		if (index != -1) {
 			this._parents.splice(index, 1);
-			FoodRegister.writeParents(this);
+			FoodRegister.updateParentsOf(this);
 		}
 	}
 

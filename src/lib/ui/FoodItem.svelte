@@ -15,7 +15,7 @@
 	async function updateAttributes(food) {
 		if (food != null) {
 			ingredientNames = [];
-			FoodRegister.getNames(food.getIngredientIds(), (name) =>
+			FoodRegister.getNamesFromKeys(food.getIngredientIds(), (name) =>
 				ingredientNames.push(name)
 			);
 			ingredientNames = ingredientNames;

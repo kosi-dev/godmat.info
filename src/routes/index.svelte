@@ -48,10 +48,10 @@
 	async function updateFoods() {
 		foods = null;
 		if (selectedUserFoods) {
-			await FoodRegister.getMatches(
+			await FoodRegister.getFoods(
 				addFood, searchString, selectedTag, user.uid);
 		} else {
-			await FoodRegister.getMatches(addFood, searchString, selectedTag);
+			await FoodRegister.getFoods(addFood, searchString, selectedTag);
 		}
 		if (foods === null) {
 			foods = [];
