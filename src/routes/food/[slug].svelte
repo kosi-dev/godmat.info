@@ -1,4 +1,3 @@
-
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
@@ -14,6 +13,7 @@
 	import TextField from '$lib/ui/TextField.svelte';
 	import TextArea from '$lib/ui/TextArea.svelte';
 	import NutritionDiagram from '$lib/ui/NutritionDiagram.svelte';
+	import Row from '$lib/ui/Row.svelte';
 
 	let edit: boolean = false;
 	let user = null;
@@ -26,7 +26,7 @@
 	let searchResults: Array<Food> = [];
 	let foodWeight = 0;
 
-	async function onLoad(slug) {
+	async function onLoad(slug: string) {
 		await FoodRegister.init();
 		await readFood();
 		onAuthStateChanged(auth, async (u) => {
@@ -42,9 +42,9 @@
 
 	$: onLoad($page.params.slug);
 
-	function addIngredientCallback(ingredient) {
+	function addIngredientCallback(ingredient: Food) {
 		ingredients.push(ingredient);
-		foodWeight += food.getIngredientWeight(ingredient)
+		foodWeight += food.getIngredientWeight(ingredient);
 		ingredients = ingredients;
 	}
 
@@ -53,10 +53,10 @@
 		food = await FoodRegister.getFood($page.params.slug);
 		if (food !== null) {
 			ingredients = [];
-			await food.getIngredients(addIngredientCallback);
-			nutrition = await food.getNutrition(ingredients);
 			name = food.getName();
 			description = food.getDescription();
+			await food.getIngredients(addIngredientCallback);
+			nutrition = await food.getNutrition(ingredients);
 		}
 	}
 
@@ -103,7 +103,7 @@
 		await readFood();
 	}
 
-	async function deleteButtonOnClick() {
+	async function onDelete() {
 		await readFood();
 		if (food != null) {
 			await FoodRegister.removeFood(food);
@@ -111,12 +111,12 @@
 		goto('../');
 	}
 
-	function addSearchResult(food) {
+	function addSearchResult(food: Food) {
 		searchResults.push(food);
 		searchResults = searchResults;
 	}
 
-	async function onKeyPress(event) {
+	async function onKeyPress(event: { keyCode: number }) {
 		if (event.keyCode === 8) {
 			searchResults = [];
 		} else if (event.keyCode === 13) {
@@ -127,92 +127,90 @@
 	}
 </script>
 
-
 {#if food === undefined}
 	<h2>Loading..</h2>
 {:else if food === null}
 	<h2>Undefined food!</h2>
-{:else}
-	{#if edit}
-		<Button onClick={editButtonOnClick} text={'Lagre'} />
-		<ButtonWithDialog
-			text={'Avbryt'}
-			onClick={cancelEdit}
-			dialogText={'Er du sikker på at du vil forkaste endringene dine?'}
+{:else if edit}
+	<Button onClick={editButtonOnClick} text={'Lagre'} />
+	<ButtonWithDialog
+		text={'Avbryt'}
+		onClick={cancelEdit}
+		dialogText={'Er du sikker på at du vil forkaste endringene dine?'}
+	/>
+	<ButtonWithDialog
+		text={'Slett ' + name}
+		onClick={onDelete}
+		dialogText={`Er du sikker på at du vil slette ${name}?`}
+	/>
+	<h3>Navn</h3>
+	<div>
+		<TextField bind:value={name} />
+	</div>
+	<h3>Beskrivelse</h3>
+	<div>
+		<TextArea bind:value={description} />
+	</div>
+	<h3>Etiketter</h3>
+	{#each [...FoodTagLabels] as [tag, text]}
+		<SwitchButton
+			state={food.hasTag(tag)}
+			offText={text}
+			switchOff={() => food.removeTag(tag)}
+			switchOn={() => food.addTag(tag)}
 		/>
-		<ButtonWithDialog
-			text={'Slett ' + name}
-			onClick={deleteButtonOnClick}
-			dialogText={`Er du sikker på at du vil slette ${name}?`}
-		/>
-		<h3>Navn</h3>
-		<div>
-			<TextField bind:value={name} />
-		</div>
-		<h3>Beskrivelse</h3>
-		<div>
-			<TextArea bind:value={description} />
-		</div>
-		<h3>Etiketter</h3>
-		{#each [...FoodTagLabels] as [tag, text]}
-			<SwitchButton
-				state={food.hasTag(tag)}
-				offText={text}
-				switchOff={() => food.removeTag(tag)}
-				switchOn={() => food.addTag(tag)}
-			/>
-		{/each}
-		<h3>Ingredienser</h3>
-		<TextField bind:value={searchString} {onKeyPress} style={'width: 50%'} />
-		<br />
+	{/each}
+	<h3>Ingredienser</h3>
+	<TextField bind:value={searchString} {onKeyPress} style={'width: 50%'} />
+	<br />
 
-		{#if searchResults.length}
-			<div class="searchResultsContainer">
-				{#each searchResults as ingredient}
-					<div on:click={() => addIngredient(ingredient)}>
-						<FoodItem food={ingredient} />
-					</div>
-				{/each}
-			</div>
-		{/if}
-		{#each ingredients as ingredient}
-			<FoodItem
-				food={ingredient}
-				onDestroy={() => removeIngredient(ingredient)}
-				onChangeWeight={(weight) =>
-				food.setIngredientWeight(ingredient, weight)}
-				weight={food.getIngredientWeight(ingredient)}
-			/>
-		{/each}
-	{:else}
-		<Button onClick={() => goto('../')} text={'Hjem'} />
-		{#if user && user.uid === food.getAuthor()}
-			<Button onClick={editButtonOnClick} text={edit ? 'Lagre' : 'Rediger'} />
-		{/if}
-		<h1>{food.getName()}</h1>
-		{#each food.getTagNames() as text}
-			<Tag {text} />
-		{/each}
-		<p>{food.getTime().split(' ')[0]}</p>
-		<p>{food.getDescription()}</p>
-		{#if foodWeight !== 0}
-			<p>Totalvekt: {foodWeight} gram.</p>
-		{/if}
-		{#if ingredients.length}
-			<h3>Ingredienser</h3>
-			{#each ingredients as ingredient}
-				<div on:click={() => gotoFood(ingredient)}>
-					<FoodItem
-						food={ingredient}
-						weight={food.getIngredientWeight(ingredient)}
-					/>
+	{#if searchResults.length}
+		<div class="searchResultsContainer">
+			{#each searchResults as ingredient}
+				<div on:click={() => addIngredient(ingredient)}>
+					<FoodItem food={ingredient} />
 				</div>
 			{/each}
-		{/if}
-		
-		{#if nutrition !== null}
-			<NutritionDiagram {nutrition} {foodWeight}/>
-		{/if}
+		</div>
+	{/if}
+	{#each ingredients as ingredient}
+		<FoodItem
+			food={ingredient}
+			onDestroy={() => removeIngredient(ingredient)}
+			onChangeWeight={(weight) => food.setIngredientWeight(ingredient, weight)}
+			weight={food.getIngredientWeight(ingredient)}
+		/>
+	{/each}
+{:else}
+	<Button onClick={() => goto('../')} text={'Hjem'} />
+	{#if user && user.uid === food.getAuthor()}
+		<Button onClick={editButtonOnClick} text={edit ? 'Lagre' : 'Rediger'} />
+	{/if}
+	<Row style="justify-content: space-between;">
+		<h1>{food.getName()}</h1>
+		<div>
+			{#each food.getTagNames() as text}
+				<Tag {text} />
+			{/each}
+		</div>
+	</Row>
+	<p>{food.getTime().split(' ')[0]}</p>
+	<p>{food.getDescription()}</p>
+	{#if foodWeight !== 0}
+		<p>Totalvekt: {foodWeight} gram.</p>
+	{/if}
+	{#if ingredients.length}
+		<h3>Ingredienser</h3>
+		{#each ingredients as ingredient}
+			<div on:click={() => gotoFood(ingredient)}>
+				<FoodItem food={ingredient} weight={food.getIngredientWeight(ingredient)} />
+			</div>
+		{/each}
+	{/if}
+
+	{#if nutrition !== null}
+		<br />
+		<NutritionDiagram {nutrition} {foodWeight} />
 	{/if}
 {/if}
 

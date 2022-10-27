@@ -2,29 +2,31 @@
 	export let text: string = '';
 	export let onClick = null;
 	export let style = '';
+	export let className = '';
 </script>
 
-<span>
-	<button on:click|stopPropagation={onClick} {style}>{text}</button>
-</span>
+<button on:click|stopPropagation={onClick} {style} class={className}>{text}</button>
 
 <style>
 	button {
-		padding: 4px 12px;
+		padding: 0.5em 1em;
+		margin: 0.2em;
 
-		border-style: solid;
-		border-radius: 16px;
-		border-width: 1px;
+		border: 1.5px solid rgb(24, 68, 126);
+		border-radius: 0.5em;
 
-		color: black;
-		background-color: lightgray;
-		border-color: gray;
+		color: white;
+		background-color: rgb(56, 127, 207);
+
+		cursor: pointer;
 	}
+
 	button:hover {
-		background-color: rgb(172, 172, 172);
+		background-color: rgb(40, 144, 235);
 	}
+
 	button:active {
-		border-color: lightgray;
-		background-color: lightgray;
+		border-color: rgba(255, 255, 255, 0);
+		background-color: rgb(24, 68, 126);
 	}
 </style>

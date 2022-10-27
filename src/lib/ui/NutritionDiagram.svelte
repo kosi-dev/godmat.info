@@ -1,23 +1,22 @@
 <script lang="ts">
 	import Recommended from './recommended.json';
-  	import Chart from 'svelte-frappe-charts';
+	import Chart from 'svelte-frappe-charts';
 
 	export let nutrition: object;
 	export let foodWeight: number;
 
 	let selectedGender = 'Male';
 	let selectedAge = '18-30 y';
-	let selectedWeight = foodWeight;
+	let selectedWeight = foodWeight !== 0 ? foodWeight : 100;
 	let selectedTime = 1;
 
 	let donutData = {
 		labels: ['Karbohydrat', 'Protein', 'Fett'],
-		datasets: [{ values: [
-			nutrition['Karbo'] * 4,
-			nutrition['Protein'] * 4,
-			nutrition['Fett'] * 9
-		] }]
+		datasets: [
+			{ values: [nutrition['Karbo'] * 4, nutrition['Protein'] * 4, nutrition['Fett'] * 9] }
+		]
 	};
+
 	$: vitaminsData = customData(
 		['Vit A', 'Vit D', 'Vit E', 'Vit B1', 'Vit B2', 'Vit B3', 'Vit B6', 'Folat', 'Vit C'],
 		selectedGender,
@@ -25,6 +24,7 @@
 		selectedWeight,
 		selectedTime
 	);
+
 	$: mineralsData = customData(
 		['Ca', 'P', 'K', 'Mg', 'Fe', 'Zn', 'Cu', 'I', 'Se'],
 		selectedGender,
@@ -32,10 +32,16 @@
 		selectedWeight,
 		selectedTime
 	);
-	$: kcal = (nutrition['Energi2'] * selectedWeight / 100).toFixed(0);
 
-	function customData(keys, 
-			selectedGender, selectedAge, selectedWeight, selectedTime) {
+	$: kcal = ((nutrition['Energi2'] * selectedWeight) / 100).toFixed(0);
+
+	function customData(
+		keys: string[],
+		selectedGender: string,
+		selectedAge: string,
+		selectedWeight: number,
+		selectedTime: number
+	) {
 		let data = [];
 		for (let key of keys) {
 			let rec = Recommended[key][selectedGender][selectedAge];
@@ -49,8 +55,9 @@
 	}
 </script>
 
-{#if nutrition && nutrition != {}}
-	<h2>Næringsinnhold, per
+{#if nutrition}
+	<h2>
+		Næringsinnhold, per
 		<select bind:value={selectedWeight}>
 			{#each [100, foodWeight] as weight}
 				<option value={weight}>

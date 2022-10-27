@@ -2,9 +2,9 @@
 	import Button from './Button.svelte';
 	import Dialog from './Dialog.svelte';
 
-	export let text;
+	export let text: string;
 	export let dialogText: string = '';
-	export let onClick;
+	export let onClick: () => void;
 
 	let showDialog = false;
 

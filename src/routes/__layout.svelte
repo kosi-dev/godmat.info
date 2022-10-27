@@ -6,11 +6,13 @@
 	:global(*) {
 		font-family: 'Source Sans Pro', sans-serif;
 	}
+
 	:global(html) {
 		max-width: 1080px;
 		margin: auto;
 		background-color: rgb(0, 0, 0, 0.05);
 	}
+
 	:global(div) {
 		max-width: 1080px;
 	}

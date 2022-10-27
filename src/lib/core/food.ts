@@ -62,14 +62,14 @@ class Food {
 	private _time: string = getTime();
 	private _author: string = '';
 	private _nutrition: Object = {};
-	private _likes: Array<string> = [];
 
 	/**
-	 * Constructs a Food instance **without an id**.
+	 * Constructs a Food instance
 	 *
-	 * @param name food name
-	 * @param basePrice food base price
-	 * @param description food description
+	 * @param name
+	 * @param author
+	 * @param id
+	 * @param nutrition
 	 */
 	public constructor(
 		name: string = 'Untitled Food',
@@ -140,11 +140,11 @@ class Food {
 	 * Adds `food` as an ingredient to this food.
 	 * Cyclic ingredients will not be added.
 	 *
-	 * @param food the ingredient to add
+	 * @param ingredient the ingredient to add
 	 * @returns `true` if `food` was added, `false` otherwise
 	 */
 	public async addIngredient(ingredient: Food, weight: number = 100): Promise<boolean> {
-		if (ingredient.getId() == this.getId() || await ingredient.hasIngredient(this)) {
+		if (ingredient.getId() == this.getId() || (await ingredient.hasIngredient(this))) {
 			console.error('Cyclic ingredients are not allowed!');
 			return false;
 		}
@@ -167,7 +167,7 @@ class Food {
 	/**
 	 * Removes `food` as an ingredient to this food.
 	 *
-	 * @param food the ingredient to remove
+	 * @param ingredient the ingredient to remove
 	 */
 	public removeIngredient(ingredient: Food) {
 		delete this._ingredients[ingredient.getId()];
@@ -179,7 +179,7 @@ class Food {
 	 *
 	 * @returns the direct ingredient children
 	 */
-	public async getIngredients(callback) {
+	public async getIngredients(callback: (food: Food) => void) {
 		for (let id of Object.keys(this._ingredients)) {
 			callback(await FoodRegister.getFood(id));
 		}
@@ -244,7 +244,7 @@ class Food {
 	 */
 	public async getPrice(): Promise<number> {
 		let price = this._basePrice;
-		await this.getIngredients(async (ingredient) => {
+		await this.getIngredients(async (ingredient: Food) => {
 			price += await ingredient.getPrice();
 		});
 		return price;
@@ -260,18 +260,18 @@ class Food {
 		} else {
 			if (ingredients == null) {
 				ingredients = [];
-				await this.getIngredients((ingredient) => {
+				await this.getIngredients((ingredient: Food) => {
 					ingredients.push(ingredient);
 				});
 			}
 			if (ingredients.length) {
-				let nutrition = {}
+				let nutrition = {};
 				let weight: number = 0;
 				for (let ingredient of ingredients) {
 					let getIngredientWeight = this.getIngredientWeight(ingredient);
 					weight += getIngredientWeight;
 					let ingredientNutrition = await ingredient.getNutrition();
-					Object.keys(ingredientNutrition).forEach(key => {
+					Object.keys(ingredientNutrition).forEach((key) => {
 						if (nutrition.hasOwnProperty(key)) {
 							nutrition[key] += ingredientNutrition[key] * getIngredientWeight;
 						} else {

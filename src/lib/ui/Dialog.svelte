@@ -25,6 +25,7 @@
 		position: fixed;
 		width: 100%;
 	}
+
 	.dialog {
 		position: relative;
 		margin: auto;
@@ -42,6 +43,7 @@
 		display: flex;
 		flex-direction: column;
 	}
+
 	.row {
 		display: flex;
 		flex-direction: row;

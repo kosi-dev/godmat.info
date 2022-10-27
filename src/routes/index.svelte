@@ -10,6 +10,7 @@
 	import TextField from '$lib/ui/TextField.svelte';
 	import SwitchButton from '$lib/ui/SwitchButton.svelte';
 	import { onAuthStateChanged } from 'firebase/auth';
+	import Row from '$lib/ui/Row.svelte';
 
 	let foods: Array<Food> = null;
 	let user = null;
@@ -37,7 +38,7 @@
 		goto('/food/' + nanoid(12)); // TODO: Might not be okay
 	}
 
-	function addFood(food) {
+	function addFood(food: Food) {
 		if (!foods) {
 			foods = [];
 		}
@@ -48,8 +49,7 @@
 	async function updateFoods() {
 		foods = null;
 		if (selectedUserFoods) {
-			await FoodRegister.getFoods(
-				addFood, searchString, selectedTag, user.uid);
+			await FoodRegister.getFoods(addFood, searchString, selectedTag, user.uid);
 		} else {
 			await FoodRegister.getFoods(addFood, searchString, selectedTag);
 		}
@@ -65,10 +65,10 @@
 
 	function selectUserFoods(select: boolean) {
 		selectedUserFoods = select;
-		updateFoods();	
+		updateFoods();
 	}
 
-	function onKeyPress(event) {
+	function onKeyPress(event: { keyCode: number }) {
 		if (event.keyCode === 13) {
 			updateFoods();
 			(document.activeElement as HTMLElement).blur();
@@ -76,43 +76,52 @@
 	}
 </script>
 
-<h1>godmat.info</h1>
-<p>- God info om god mat!</p>
-{#if !user}
-	<Button onClick={signInButtonOnClick} text={'Logg in med Google'} />
-{:else}
-	<p>Innlogget som {user.displayName} ✔️</p>
-	<Button onClick={signOutButtonOnClick} text={'Logg ut'} />
-	<Button onClick={createFoodButtonOnClick} text={'+ Lag ny oppskrift'} />
-{/if}
-<br />
+<Row style="justify-content: space-between">
+	<div>
+		<h1>godmat.info</h1>
+		<span>- God info om god mat!</span>
+	</div>
+	<div>
+		{#if !user}
+			<Button onClick={signInButtonOnClick} text={'Logg inn med Google'} />
+		{:else}
+			<details>
+				<summary>
+					Innlogget som {user.displayName} ✔️
+				</summary>
+				<Button onClick={signOutButtonOnClick} text={'Logg ut'} />
+			</details>
+		{/if}
+	</div>
+</Row>
 <br />
 <h3>Søk</h3>
-<TextField bind:value={searchString} {onKeyPress} style={'width: 50%'} />
-<br />
-<br />
-<details>
-	<summary>Filtrer</summary>
-	<br>
+<Row style="justify-content: space-between">
+	<TextField bind:value={searchString} {onKeyPress} style={'width: 50%'} />
 	{#if user}
-		<SwitchButton
-			state={selectedUserFoods}
-			offText={"Mine oppskrifter"}
-			switchOff={() => selectUserFoods(false)}
-			switchOn={() => selectUserFoods(true)}
-		/>
-		<br>
-		<br>
+		<Button onClick={createFoodButtonOnClick} text={'+ Lag ny oppskrift'} />
 	{/if}
-	{#each [...FoodTagLabels] as [tag, text]}
-		<SwitchButton
-			state={tag === selectedTag}
-			offText={text}
-			switchOff={() => selectTag(null)}
-			switchOn={() => selectTag(tag)}
-		/>
-	{/each}
-</details>
+</Row>
+
+<br />
+<br />
+{#if user}
+	<SwitchButton
+		state={selectedUserFoods}
+		offText={'Mine oppskrifter'}
+		switchOff={() => selectUserFoods(false)}
+		switchOn={() => selectUserFoods(true)}
+	/>
+{/if}
+{#each [...FoodTagLabels] as [tag, text]}
+	<SwitchButton
+		state={tag === selectedTag}
+		offText={text}
+		switchOff={() => selectTag(null)}
+		switchOn={() => selectTag(tag)}
+	/>
+{/each}
+<br />
 <br />
 {#if foods !== null}
 	{#if foods.length === 0}

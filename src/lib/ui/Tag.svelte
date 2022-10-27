@@ -8,12 +8,13 @@
 
 <style>
 	span {
-		padding: 4px 12px;
+		padding: 0.5em 1em;
 
-		border-radius: 16px;
-		border-style: solid;
-		border-width: 1px;
+		border-radius: 0.6em;
+		border: 1.5px solid gray;
 		color: black;
-		border-color: gray;
+
+		height: min-content;
+		margin: 0.5em;
 	}
 </style>
