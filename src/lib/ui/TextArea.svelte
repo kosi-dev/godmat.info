@@ -4,7 +4,7 @@
 	export let onKeyPress = undefined;
 </script>
 
-<textarea type="text" bind:value on:keyup={onKeyPress} {style} on:click|stopPropagation/>
+<textarea type="text" bind:value on:keyup={onKeyPress} {style} on:click|stopPropagation />
 
 <style>
 	textarea {

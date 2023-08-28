@@ -1,4 +1,3 @@
-
 import {
 	collection,
 	query,
@@ -116,31 +115,30 @@ namespace FoodRegister {
 		uid: string = null
 	) {
 		if (!searchString) {
-			let q: Query = (tag !== null)
-			? ((uid !== null)
-				? query(
-					collection(db, 'foodRegister'),
-					where('_tags', 'array-contains', tag),
-					where('_author', '==', uid),
-					orderBy('_time', 'desc'),
-					limit(max_count))
-				: query(
-					collection(db, 'foodRegister'),
-					where('_tags', 'array-contains', tag),
-					orderBy('_time', 'desc'),
-					limit(max_count))
-			)	
-			: ((uid !== null)
-				? query(
-					collection(db, 'foodRegister'),
-					where('_author', '==', uid),
-					orderBy('_time', 'desc'),
-					limit(max_count))
-				: query(
-					collection(db, 'foodRegister'),
-					orderBy('_time', 'desc'),
-					limit(max_count))
-			)
+			let q: Query =
+				tag !== null
+					? uid !== null
+						? query(
+								collection(db, 'foodRegister'),
+								where('_tags', 'array-contains', tag),
+								where('_author', '==', uid),
+								orderBy('_time', 'desc'),
+								limit(max_count)
+						  )
+						: query(
+								collection(db, 'foodRegister'),
+								where('_tags', 'array-contains', tag),
+								orderBy('_time', 'desc'),
+								limit(max_count)
+						  )
+					: uid !== null
+					? query(
+							collection(db, 'foodRegister'),
+							where('_author', '==', uid),
+							orderBy('_time', 'desc'),
+							limit(max_count)
+					  )
+					: query(collection(db, 'foodRegister'), orderBy('_time', 'desc'), limit(max_count));
 			const querySnapshot = await getDocs(q);
 			querySnapshot.forEach((docSnap) => {
 				callback(Object.assign(new Food(), docSnap.data()));
