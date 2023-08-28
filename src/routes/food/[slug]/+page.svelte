@@ -4,7 +4,7 @@
 	import { Food, FoodTagLabels } from '$lib/core/food';
 	import { FoodRegister } from '$lib/core/food-register';
 	import { auth } from '$lib/firebase/firebase';
-	import { onAuthStateChanged } from 'firebase/auth';
+	import { onAuthStateChanged, type User } from 'firebase/auth';
 	import Button from '$lib/ui/Button.svelte';
 	import FoodItem from '$lib/ui/FoodItem.svelte';
 	import ButtonWithDialog from '$lib/ui/ButtonWithDialog.svelte';
@@ -16,10 +16,10 @@
 	import Row from '$lib/ui/Row.svelte';
 
 	let edit: boolean = false;
-	let user = null;
-	let food: Food = undefined;
+	let user: User | null = null;
+	let food: Food | null = null;
 	let ingredients: Array<Food> = [];
-	let nutrition = null;
+	let nutrition: Record<string, number> | null = null;
 	let name: string = '';
 	let description: string = '';
 	let searchString: string = '';
@@ -44,14 +44,16 @@
 
 	function addIngredientCallback(ingredient: Food) {
 		ingredients.push(ingredient);
-		foodWeight += food.getIngredientWeight(ingredient);
+		if (food) {
+			foodWeight += food.getIngredientWeight(ingredient);
+		}
 		ingredients = ingredients;
 	}
 
 	async function readFood() {
 		foodWeight = 0;
 		food = await FoodRegister.getFood($page.params.slug);
-		if (food !== null) {
+		if (food) {
 			ingredients = [];
 			name = food.getName();
 			description = food.getDescription();
@@ -61,6 +63,7 @@
 	}
 
 	async function writeFood() {
+		if (!food) return;
 		food.setDescription(description);
 		food.setName(name);
 		await FoodRegister.putFood(food);
@@ -71,7 +74,7 @@
 	}
 
 	async function onToggleEdit() {
-		if (edit) {
+		if (edit && food) {
 			await writeFood();
 			nutrition = await food.getNutrition();
 		}
@@ -89,7 +92,7 @@
 	async function addIngredient(ingredient: Food) {
 		searchString = '';
 		searchResults = [];
-		if (await food.addIngredient(ingredient)) {
+		if (await food?.addIngredient(ingredient)) {
 			await writeFood();
 			await readFood();
 		} else {
@@ -98,6 +101,7 @@
 	}
 
 	async function removeIngredient(ingredient: Food) {
+		if (!food) return;
 		food.removeIngredient(ingredient);
 		await writeFood();
 		await readFood();
@@ -156,8 +160,8 @@
 		<SwitchButton
 			state={food.hasTag(tag)}
 			offText={text}
-			switchOff={() => food.removeTag(tag)}
-			switchOn={() => food.addTag(tag)}
+			switchOff={() => food?.removeTag(tag)}
+			switchOn={() => food?.addTag(tag)}
 		/>
 	{/each}
 	<h3>Ingredienser</h3>
@@ -177,7 +181,7 @@
 		<FoodItem
 			food={ingredient}
 			onDestroy={() => removeIngredient(ingredient)}
-			onChangeWeight={(weight) => food.setIngredientWeight(ingredient, weight)}
+			onChangeWeight={(weight) => food?.setIngredientWeight(ingredient, weight)}
 			weight={food.getIngredientWeight(ingredient)}
 		/>
 	{/each}

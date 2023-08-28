@@ -9,13 +9,13 @@
 	import FoodItem from '$lib/ui/FoodItem.svelte';
 	import TextField from '$lib/ui/TextField.svelte';
 	import SwitchButton from '$lib/ui/SwitchButton.svelte';
-	import { onAuthStateChanged } from 'firebase/auth';
+	import { onAuthStateChanged, type User } from 'firebase/auth';
 	import Row from '$lib/ui/Row.svelte';
 
-	let foods: Array<Food> = null;
-	let user = null;
+	let foods: Food[] | null = null;
+	let user: User | null = null;
 	let searchString: string = '';
-	let selectedTag: FoodTag = null;
+	let selectedTag: FoodTag | null = null;
 	let selectedUserFoods: boolean = false;
 
 	onMount(async () => {
@@ -48,7 +48,8 @@
 
 	async function updateFoods() {
 		foods = null;
-		if (selectedUserFoods) {
+		if (!selectedTag) return;
+		if (selectedUserFoods && user) {
 			await FoodRegister.getFoods(addFood, searchString, selectedTag, user.uid);
 		} else {
 			await FoodRegister.getFoods(addFood, searchString, selectedTag);
@@ -58,7 +59,7 @@
 		}
 	}
 
-	function selectTag(tag: FoodTag) {
+	function selectTag(tag: FoodTag | null) {
 		selectedTag = tag;
 		updateFoods();
 	}
@@ -68,8 +69,8 @@
 		updateFoods();
 	}
 
-	function onKeyPress(event: { keyCode: number }) {
-		if (event.keyCode === 13) {
+	function onKeyPress(event: KeyboardEvent) {
+		if (event.code === 'Enter') {
 			updateFoods();
 			(document.activeElement as HTMLElement).blur();
 		}

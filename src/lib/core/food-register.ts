@@ -21,7 +21,7 @@ export { FoodRegister };
 namespace FoodRegister {
 	const max_count: number = 10;
 	const nameRef = doc(db, 'ext', 'names');
-	let keyNamePairs: Object;
+	let keyNamePairs: Record<string, string>;
 
 	export async function init() {
 		getDoc(nameRef).then((docSnap) => {
@@ -36,16 +36,12 @@ namespace FoodRegister {
 
 	async function updateKeyNamePair(id: string, name: string) {
 		keyNamePairs[id] = name;
-		let data = {};
-		data[id] = name;
-		await updateDoc(nameRef, data);
+		await updateDoc(nameRef, { id: name });
 	}
 
-	async function deleteKeyNamePair(id) {
+	async function deleteKeyNamePair(id: string) {
 		delete keyNamePairs[id];
-		let data = {};
-		data[id] = deleteField();
-		await updateDoc(nameRef, data);
+		await updateDoc(nameRef, { id: deleteField() });
 	}
 
 	/**
@@ -88,7 +84,7 @@ namespace FoodRegister {
 	 * @param id the id of the food to get
 	 * @returns the food with `id`, or null
 	 */
-	export async function getFood(id: string): Promise<Food> {
+	export async function getFood(id: string): Promise<Food | null> {
 		const ref = doc(db, 'foodRegister', id);
 		const docSnap = await getDoc(ref);
 		if (docSnap.exists()) {
@@ -109,10 +105,10 @@ namespace FoodRegister {
 	 * @returns array of matching foods
 	 */
 	export async function getFoods(
-		callback,
-		searchString: string = null,
-		tag: FoodTag = null,
-		uid: string = null
+		callback: (food: Food) => void,
+		searchString: string | null = null,
+		tag: FoodTag | null = null,
+		uid: string | null = null
 	) {
 		if (!searchString) {
 			let q: Query =
@@ -149,8 +145,8 @@ namespace FoodRegister {
 			for (let key of Object.keys(keyNamePairs).reverse()) {
 				let name = keyNamePairs[key];
 				if (name.toLowerCase().includes(searchString.toLowerCase())) {
-					let food: Food = await getFood(key);
-					if (tag === null || food.hasTag(tag)) {
+					let food = await getFood(key);
+					if (food?.hasTag(tag)) {
 						callback(food);
 						count += 1;
 						if (count == max_count) {
@@ -168,7 +164,7 @@ namespace FoodRegister {
 		await updateDoc(ref, { _parents: child.getParentIds() });
 	}
 
-	export function getNamesFromKeys(ids: Array<string>, callback) {
+	export function getNamesFromKeys(ids: Array<string>, callback: (s: string) => void) {
 		for (let id of ids) {
 			callback(keyNamePairs[id]);
 		}

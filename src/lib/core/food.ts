@@ -57,11 +57,11 @@ class Food {
 	private _id: string = '';
 	private _basePrice: number = 0;
 	private _tags: Array<FoodTag> = [];
-	private _ingredients: Object = {};
+	private _ingredients: Record<string, number> = {};
 	private _parents: Array<string> = [];
 	private _time: string = getTime();
 	private _author: string = '';
-	private _nutrition: Object = {};
+	private _nutrition: Record<string, number> = {};
 
 	/**
 	 * Constructs a Food instance
@@ -75,7 +75,7 @@ class Food {
 		name: string = 'Untitled Food',
 		author: string = '',
 		id = '',
-		nutrition: Object = {}
+		nutrition: Record<string, number> = {}
 	) {
 		this._name = name;
 		this._author = author;
@@ -99,16 +99,18 @@ class Food {
 		return [...this._tags];
 	}
 
-	public getTagNames(): Array<string> {
-		return this.getTags().map((foodTag) => FoodTagLabels.get(foodTag));
+	public getTagNames(): string[] {
+		return this.getTags()
+			.map((foodTag) => FoodTagLabels.get(foodTag))
+			.filter((t) => !!t) as string[];
 	}
 
 	public addTag(tag: FoodTag) {
 		this._tags.push(tag);
 	}
 
-	public hasTag(tag: FoodTag): boolean {
-		return this._tags.includes(tag);
+	public hasTag(tag: FoodTag | null): boolean {
+		return !tag || this._tags.includes(tag);
 	}
 
 	public removeTag(tag: FoodTag) {
@@ -181,7 +183,10 @@ class Food {
 	 */
 	public async getIngredients(callback: (food: Food) => void) {
 		for (let id of Object.keys(this._ingredients)) {
-			callback(await FoodRegister.getFood(id));
+			const food = await FoodRegister.getFood(id);
+			if (food) {
+				callback(food);
+			}
 		}
 	}
 
@@ -198,6 +203,7 @@ class Food {
 	public async hasIngredient(food: Food): Promise<boolean> {
 		for (let id of Object.keys(this._ingredients)) {
 			let ingredient = await FoodRegister.getFood(id);
+			if (!ingredient) continue;
 			if (ingredient.getId() === food.getId() || (await ingredient.hasIngredient(food))) {
 				return true;
 			}
@@ -254,18 +260,20 @@ class Food {
 		return this._time;
 	}
 
-	public async getNutrition(ingredients: Array<Food> = null): Promise<Object> {
+	public async getNutrition(
+		ingredients: Array<Food> | null = null
+	): Promise<Record<string, number>> {
 		if (Object.keys(this._nutrition).length !== 0) {
 			return this._nutrition;
 		} else {
 			if (ingredients == null) {
-				ingredients = [];
 				await this.getIngredients((ingredient: Food) => {
+					ingredients = [];
 					ingredients.push(ingredient);
 				});
 			}
-			if (ingredients.length) {
-				let nutrition = {};
+			if (ingredients?.length) {
+				let nutrition: Record<string, number> = {};
 				let weight: number = 0;
 				for (let ingredient of ingredients) {
 					let getIngredientWeight = this.getIngredientWeight(ingredient);
@@ -281,12 +289,12 @@ class Food {
 				}
 				if (weight !== 0) {
 					for (let key of Object.keys(nutrition)) {
-						nutrition[key] = (nutrition[key] / weight).toFixed(2);
+						nutrition[key] = parseFloat((nutrition[key] / weight).toFixed(2));
 					}
 					return nutrition;
 				}
 			}
-			return null;
+			return {};
 		}
 	}
 }

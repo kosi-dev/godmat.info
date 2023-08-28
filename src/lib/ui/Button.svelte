@@ -1,6 +1,6 @@
 <script lang="ts">
 	export let text: string = '';
-	export let onClick = null;
+	export let onClick: ((e: Event) => void) | null = null;
 	export let style = '';
 	export let className = '';
 </script>

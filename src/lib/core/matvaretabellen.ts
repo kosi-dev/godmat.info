@@ -1,7 +1,8 @@
+import type { User } from 'firebase/auth';
 import { Food } from './food';
 import { FoodRegister } from './food-register';
 
-export async function addMatvareTabellen(user) {
+export async function addMatvareTabellen(user: User) {
 	await fetch('/matvaretabellen.json')
 		.then((response) => response.json())
 		.then(async (json) => {

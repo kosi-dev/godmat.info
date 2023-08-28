@@ -1,7 +1,7 @@
 <script lang="ts">
 	export let value: number | string;
 	export let style: string = '';
-	export let onKeyPress = undefined;
+	export let onKeyPress: ((e: KeyboardEvent) => void) | undefined = undefined;
 	export let type: string = 'text';
 </script>
 

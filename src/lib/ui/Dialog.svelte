@@ -4,8 +4,8 @@
 	export let text: string = '';
 	export let leftButtonText = 'Nei';
 	export let rightButtonText = 'Ja';
-	export let leftButtonOnClick = null;
-	export let rightButtonOnClick = null;
+	export let leftButtonOnClick: ((e: Event) => void) | null = null;
+	export let rightButtonOnClick: ((e: Event) => void) | null = null;
 </script>
 
 <div class="wrapper">

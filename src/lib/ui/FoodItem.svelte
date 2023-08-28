@@ -7,9 +7,9 @@
 	import TextField from './TextField.svelte';
 
 	export let food: Food;
-	export let weight: number = undefined;
-	export let onChangeWeight: (weight: number) => void = undefined;
-	export let onDestroy: Function = undefined;
+	export let weight: number | undefined = undefined;
+	export let onChangeWeight: ((weight: number) => void) | undefined = undefined;
+	export let onDestroy: (() => void) | undefined = undefined;
 
 	let ingredientNames: Array<string> = [];
 
@@ -24,7 +24,7 @@
 	}
 
 	$: updateAttributes(food);
-	$: if (onChangeWeight !== undefined) {
+	$: if (onChangeWeight !== undefined && weight !== undefined) {
 		onChangeWeight(weight);
 	}
 	$: name = food.getName();

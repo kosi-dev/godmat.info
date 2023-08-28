@@ -2,7 +2,7 @@
 	import Recommended from './recommended.json';
 	import Chart from 'svelte-frappe-charts';
 
-	export let nutrition: object;
+	export let nutrition: Record<string, number>;
 	export let foodWeight: number;
 
 	let selectedGender = 'Male';

@@ -1,5 +1,5 @@
 import { getApp, getApps, initializeApp } from 'firebase/app';
-import { signInWithPopup, GoogleAuthProvider, getAuth } from 'firebase/auth';
+import { signInWithPopup, GoogleAuthProvider, getAuth, type Auth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 // Your web app's Firebase configuration
@@ -20,7 +20,7 @@ let auth = getAuth();
 let db = getFirestore();
 const provider = new GoogleAuthProvider();
 
-async function signIn(auth) {
+async function signIn(auth: Auth) {
 	signInWithPopup(auth, provider).catch((error) => {
 		console.error(error.code);
 		console.error(error.message);

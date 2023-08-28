@@ -1,10 +1,10 @@
 <script lang="ts">
 	export let value: string;
 	export let style: string = '';
-	export let onKeyPress = undefined;
+	export let onKeyPress: ((e: Event) => void) | undefined = undefined;
 </script>
 
-<textarea type="text" bind:value on:keyup={onKeyPress} {style} on:click|stopPropagation />
+<textarea bind:value on:keyup={onKeyPress} {style} on:click|stopPropagation />
 
 <style>
 	textarea {
