@@ -14,6 +14,7 @@
 	import TextArea from '$lib/ui/TextArea.svelte';
 	import NutritionDiagram from '$lib/ui/NutritionDiagram.svelte';
 	import Row from '$lib/ui/Row.svelte';
+	import { foodId } from '$lib/stores/foodStore';
 
 	let edit: boolean = false;
 	let user: User | null = null;
@@ -25,22 +26,25 @@
 	let searchString: string = '';
 	let searchResults: Array<Food> = [];
 	let foodWeight = 0;
+	let currentFoodId = '';
+	let loading = false
 
-	async function onLoad(slug: string) {
+	async function onLoad(id: string) {
+		currentFoodId = id;
 		await FoodRegister.init();
 		await readFood();
 		onAuthStateChanged(auth, async (u) => {
 			user = u;
 			if (user) {
 				if (food == null) {
-					food = new Food('Untitled', user.uid, slug);
+					food = new Food('Untitled', user.uid, currentFoodId);
 					edit = true;
 				}
 			}
 		});
 	}
 
-	$: onLoad($page.params.slug);
+	foodId.subscribe((id) => onLoad(id));
 
 	function addIngredientCallback(ingredient: Food) {
 		ingredients.push(ingredient);
@@ -51,8 +55,9 @@
 	}
 
 	async function readFood() {
+		loading = true;
 		foodWeight = 0;
-		food = await FoodRegister.getFood($page.params.slug);
+		food = await FoodRegister.getFood(currentFoodId);
 		if (food) {
 			ingredients = [];
 			name = food.getName();
@@ -60,6 +65,7 @@
 			await food.getIngredients(addIngredientCallback);
 			nutrition = await food.getNutrition(ingredients);
 		}
+		loading = false;
 	}
 
 	async function writeFood() {
@@ -70,7 +76,8 @@
 	}
 
 	async function gotoFood(food: Food) {
-		goto('/food/' + food.getId());
+		if (loading) return false;
+		foodId.set(food.getId())
 	}
 
 	async function onToggleEdit() {

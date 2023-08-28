@@ -4,13 +4,14 @@
 	import { signIn, auth } from '$lib/firebase/firebase';
 	import { Food, FoodTag, FoodTagLabels } from '$lib/core/food';
 	import { FoodRegister } from '$lib/core/food-register';
-	import { nanoid } from 'nanoid';
 	import Button from '$lib/ui/Button.svelte';
 	import FoodItem from '$lib/ui/FoodItem.svelte';
 	import TextField from '$lib/ui/TextField.svelte';
 	import SwitchButton from '$lib/ui/SwitchButton.svelte';
 	import { onAuthStateChanged, type User } from 'firebase/auth';
 	import Row from '$lib/ui/Row.svelte';
+	import { foodId } from '$lib/stores/foodStore';
+	import { nanoid } from 'nanoid';
 
 	let foods: Food[] | null = null;
 	let user: User | null = null;
@@ -35,7 +36,8 @@
 	}
 
 	async function createFoodButtonOnClick() {
-		goto('/food/' + nanoid(12));
+		foodId.set(nanoid(12));
+		goto('/food');
 	}
 
 	function addFood(food: Food) {
@@ -48,7 +50,6 @@
 
 	async function updateFoods() {
 		foods = null;
-		if (!selectedTag) return;
 		if (selectedUserFoods && user) {
 			await FoodRegister.getFoods(addFood, searchString, selectedTag, user.uid);
 		} else {
@@ -129,7 +130,12 @@
 		<p>Ingen resultater :(</p>
 	{:else}
 		{#each foods as food}
-			<div on:click={() => goto('/food/' + food.getId())}>
+			<div
+				on:click={() => {
+					foodId.set(food.getId());
+					goto('/food');
+				}}
+			>
 				<FoodItem {food} />
 			</div>
 		{/each}
