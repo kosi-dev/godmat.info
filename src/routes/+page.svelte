@@ -35,7 +35,7 @@
 	}
 
 	async function createFoodButtonOnClick() {
-		goto('/food/' + nanoid(12)); // TODO: Might not be okay
+		goto('/food/' + nanoid(12));
 	}
 
 	function addFood(food: Food) {

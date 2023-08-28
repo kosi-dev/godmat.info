@@ -70,7 +70,7 @@
 		goto('/food/' + food.getId());
 	}
 
-	async function editButtonOnClick() {
+	async function onToggleEdit() {
 		if (edit) {
 			await writeFood();
 			nutrition = await food.getNutrition();
@@ -132,7 +132,7 @@
 {:else if food === null}
 	<h2>Undefined food!</h2>
 {:else if edit}
-	<Button onClick={editButtonOnClick} text={'Lagre'} />
+	<Button onClick={onToggleEdit} text={'Lagre'} />
 	<ButtonWithDialog
 		text={'Avbryt'}
 		onClick={cancelEdit}
@@ -184,7 +184,7 @@
 {:else}
 	<Button onClick={() => goto('../')} text={'Hjem'} />
 	{#if user && user.uid === food.getAuthor()}
-		<Button onClick={editButtonOnClick} text={edit ? 'Lagre' : 'Rediger'} />
+		<Button onClick={onToggleEdit} text={edit ? 'Lagre' : 'Rediger'} />
 	{/if}
 	<Row style="justify-content: space-between;">
 		<h1>{food.getName()}</h1>

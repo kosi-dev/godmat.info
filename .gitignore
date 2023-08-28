@@ -3,6 +3,9 @@ node_modules
 /build
 /.svelte-kit
 /package
-/functions/ssrServer
-/.firebase
+.env
+.env.*
+!.env.example
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
 /static/matvaretabellen.json
